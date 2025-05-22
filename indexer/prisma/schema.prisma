@@ -13,3 +13,37 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model ButtonPress {
+  id        String   @id @default(uuid())
+  userId    String
+  timestamp DateTime @default(now())
+  txHash    String   @unique // Transaction hash for verification
+
+  @@index([userId])
+}
+
+model CompetitionPeriod {
+  id            Int      @id @default(autoincrement())
+  startTime     DateTime
+  endTime       DateTime
+  distributionId Int     @unique // ID from the RewardVault contract
+  merkleRoot    String   // Merkle root for reward distribution
+  totalPresses  Int      @default(0)
+
+  @@index([distributionId])
+}
+
+model RewardClaim {
+  id            String   @id @default(uuid())
+  userId        String
+  distributionId Int
+  amount        String   // Amount of BGT tokens
+  merkleProof   String   // JSON string of merkle proof
+  claimed       Boolean  @default(false)
+  claimedAt     DateTime?
+
+  @@index([userId])
+  @@index([distributionId])
+  @@index([claimed])
+}

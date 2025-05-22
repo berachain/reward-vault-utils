@@ -1,6 +1,7 @@
 # Foundry
-cache/
 out/
+cache/
+lib/
 broadcast/
 
 # Node.js
