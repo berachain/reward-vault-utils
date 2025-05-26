@@ -1,4 +1,2 @@
 @solmate/=lib/solmate/src/
-solady/src/=lib/solady/src/
-solady/test/=lib/solady/test/
-@berachain/=lib/contracts/src/ 
+solady/=lib/solady/src/

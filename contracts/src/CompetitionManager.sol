@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import {Owned} from "@solmate/auth/Owned.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {CompetitionToken} from "./CompetitionToken.sol";
-import {IRewardVault} from "@berachain/pol/rewards/RewardVault.sol";
+import {IRewardVault} from "./interfaces/IRewardVault.sol";
 
 /// @title CompetitionManager
 /// @notice This contract manages competitions by creating and owning a competition token
@@ -44,7 +44,7 @@ contract CompetitionManager is Owned {
         if (_rewardVault == address(0)) revert InvalidRewardVault();
 
         IRewardVault vault = IRewardVault(_rewardVault);
-        if (vault.stakingToken() != address(competitionToken)) revert InvalidRewardVault();
+        if (vault.stakeToken() != address(competitionToken)) revert InvalidRewardVault();
 
         rewardVault = vault;
         emit RewardVaultRegistered(_rewardVault);

@@ -15,35 +15,62 @@ datasource db {
 }
 
 model ButtonPress {
-  id        String   @id @default(uuid())
-  userId    String
+  id        String   @id @default(cuid())
+  address   String   // The EVM address that pressed the button
   timestamp DateTime @default(now())
-  txHash    String   @unique // Transaction hash for verification
+  blockNumber Int    // The block number when the press occurred
+  txHash    String   @unique // The transaction hash
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([userId])
+  @@index([address])
+  @@index([timestamp])
+  @@index([blockNumber])
 }
 
-model CompetitionPeriod {
-  id            Int      @id @default(autoincrement())
+// This model will store the merkle tree data for reward distribution
+model RewardDistribution {
+  id            String   @id @default(cuid())
   startTime     DateTime
   endTime       DateTime
-  distributionId Int     @unique // ID from the RewardVault contract
-  merkleRoot    String   // Merkle root for reward distribution
-  totalPresses  Int      @default(0)
+  totalRewards  String   // Amount of rewards to distribute
+  merkleRoot    String   // The merkle root hash
+  merkleProofs  Json     // The merkle proofs for each address
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  @@index([distributionId])
+  @@index([startTime])
+  @@index([endTime])
 }
 
-model RewardClaim {
-  id            String   @id @default(uuid())
-  userId        String
-  distributionId Int
-  amount        String   // Amount of BGT tokens
-  merkleProof   String   // JSON string of merkle proof
-  claimed       Boolean  @default(false)
-  claimedAt     DateTime?
+model IndexerState {
+  key   String @id
+  value String
+}
 
-  @@index([userId])
-  @@index([distributionId])
-  @@index([claimed])
+model MerkleClaim {
+  id              String   @id @default(cuid())
+  merkleRoot      String   @unique
+  start           DateTime
+  end             DateTime
+  prizeAmount     String   // in wei
+  participantCount Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  participants    MerkleParticipant[]
+}
+
+model MerkleParticipant {
+  id           String   @id @default(cuid())
+  claimId      String
+  address      String
+  rewardAmount String   // in wei
+  proof        Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  claim        MerkleClaim @relation(fields: [claimId], references: [id])
+
+  @@unique([claimId, address])
 }

@@ -3,9 +3,9 @@ pragma solidity ^0.8.26;
 
 import {Owned} from "@solmate/auth/Owned.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {MerkleProofLib} from "solady/src/utils/MerkleProofLib.sol";
+import {MerkleProofLib} from "@solmate/utils/MerkleProofLib.sol";
 import {CompetitionManager} from "./CompetitionManager.sol";
-import {IRewardVault} from "@berachain/pol/rewards/IRewardVault.sol";
+import {IRewardVault} from "./interfaces/IRewardVault.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 
 /// @title CompetitionManagerMerkle
@@ -30,7 +30,7 @@ contract CompetitionManagerMerkle is CompetitionManager {
     mapping(bytes32 => Competition) public competitions;
 
     /// @notice Maps user addresses to their participation details
-    mapping(address => UserParticipation) public userParticipations;
+    mapping(address => UserParticipation) internal userParticipations;
 
     /// @notice Tracks the total amount of BGT allocated to competitions
     uint256 public totalAllocatedBGT;
@@ -58,21 +58,21 @@ contract CompetitionManagerMerkle is CompetitionManager {
     error InsufficientBGT();
     error CompetitionExists();
 
-    /// @notice Initializes the contract by minting and staking a competition token
-    /// @dev Can only be called once after reward vault is set
-    function initialize() external onlyOwner {
+    /// @notice Initializes the contract by registering the reward vault and staking a competition token
+    /// @dev Can only be called once, after reward vault is deployed
+    function initialize(address _rewardVault) external onlyOwner {
         if (initialized) revert AlreadyInitialized();
-        if (address(rewardVault) == address(0)) revert NotInitialized();
+        if (_rewardVault == address(0)) revert NotInitialized();
+
+        IRewardVault vault = IRewardVault(_rewardVault);
+        if (vault.stakeToken() != address(competitionToken)) revert InvalidAmount();
+        rewardVault = vault;
 
         // Mint one token and stake it permanently
         competitionToken.mint(address(this), 1 ether);
-        
-        // Approve the reward vault to spend our tokens
         competitionToken.approve(address(rewardVault), type(uint256).max);
-        
-        // Stake the token
         rewardVault.stake(1 ether);
-        
+
         initialized = true;
     }
 
@@ -109,7 +109,7 @@ contract CompetitionManagerMerkle is CompetitionManager {
 
         // Verify the merkle proof
         bytes32 leaf = keccak256(abi.encodePacked(merkleRoot, msg.sender, amount));
-        if (!proof.verify(merkleRoot, leaf)) revert InvalidMerkleProof();
+        if (!MerkleProofLib.verify(proof, merkleRoot, leaf)) revert InvalidMerkleProof();
 
         // Mark as claimed and add to user's participation
         userParticipations[msg.sender].hasClaimed[merkleRoot] = true;

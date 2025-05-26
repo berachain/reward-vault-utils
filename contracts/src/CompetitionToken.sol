@@ -37,4 +37,24 @@ contract CompetitionToken is ERC20, Owned {
     function burn(address from, uint256 amount) external onlyOwner {
         _burn(from, amount);
     }
+
+    /// @notice Overrides transferFrom to allow owner to skip allowance checks
+    function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
+        if (msg.sender == owner) {
+            balanceOf[from] -= amount;
+            unchecked {
+                balanceOf[to] += amount;
+            }
+            emit Transfer(from, to, amount);
+            return true;
+        }
+        uint256 allowed = allowance[from][msg.sender];
+        if (allowed != type(uint256).max) allowance[from][msg.sender] = allowed - amount;
+        balanceOf[from] -= amount;
+        unchecked {
+            balanceOf[to] += amount;
+        }
+        emit Transfer(from, to, amount);
+        return true;
+    }
 } 

@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "graphile-worker": "^0.16.6"
+  }
+}

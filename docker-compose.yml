@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: competition_vault
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  indexer:
+    build: ./indexer
+    command: pnpm run start:dev
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/competition_vault
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    volumes:
+      - ./indexer:/app
+      - /app/node_modules
+
+volumes:
+  db_data: 
