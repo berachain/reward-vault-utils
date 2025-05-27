@@ -1,0 +1,81 @@
+name: Indexer CI
+
+on:
+  push:
+    paths:
+      - 'indexer/**'
+      - '.github/workflows/indexer-ci.yml'
+      - 'commitlint.config.js'
+      - 'package.json'
+      - '.husky/**'
+  pull_request:
+    paths:
+      - 'indexer/**'
+      - '.github/workflows/indexer-ci.yml'
+      - 'commitlint.config.js'
+      - 'package.json'
+      - '.husky/**'
+
+jobs:
+  lint-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint commits
+        run: npx commitlint --from=HEAD~1
+
+  build-and-test:
+    needs: lint-commits
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: indexer/package-lock.json
+
+      - name: Install dependencies
+        working-directory: indexer
+        run: npm ci
+
+      - name: Build
+        working-directory: indexer
+        run: npm run build
+
+      - name: Run tests
+        working-directory: indexer
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+        run: npm test 
