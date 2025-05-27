@@ -1,166 +1,97 @@
 # Competition Vault Contracts
 
-This directory contains the Solidity smart contracts for the Competition Vault project, designed to integrate with Berachain's Bepolia network.
+Smart contracts for managing competitions and reward distribution on Berachain, integrated with proof of liquidity mechanisms.
 
 ## Overview
 
-The contracts are built using Forge and include the following components:
+The Competition Vault contracts provide a framework for:
+- Creating and managing competitions
+- Tracking user participation
+- Integrating with Berachain's proof of liquidity
+- Distributing rewards based on participation and liquidity metrics
 
-- **CompetitionManagerMerkle**: Manages the competition logic and integrates with the reward vault.
-- **Button**: A simple contract for testing and demonstration purposes.
-- **Interfaces**: Local interfaces for external contracts, such as `IRewardVault`, to ensure compatibility with Berachain's contracts.
+## Contract Structure
 
-## Dependencies
+- `CompetitionVault.sol`: Main contract for competition management and reward distribution
+- `RewardVault.sol`: Handles reward token distribution and merkle root verification
+- `ButtonPress.sol`: Tracks user participation in competitions
 
-- **Solmate**: The only external dependency used in the project. All other dependencies (OpenZeppelin, Berachain contracts) have been removed to simplify the build process.
+## Development Setup
 
-## Deployment
+### Prerequisites
 
-The deployment script (`Deploy.s.sol`) automates the deployment of the `CompetitionManagerMerkle` and `Button` contracts. It also logs the addresses of the deployed contracts for easy reference.
+- Foundry
+- Node.js (v18 or later)
+- Git
+
+### Installation
+
+```bash
+# Install dependencies
+forge install
+
+# Build contracts
+forge build
+
+# Run tests
+forge test
+```
+
+## Contract Integration
+
+### Competition Creation
+
+```solidity
+function createCompetition(
+    uint256 startTime,
+    uint256 endTime,
+    uint256 rewardAmount
+) external returns (uint256 competitionId)
+```
+
+### Participation
+
+```solidity
+function participate(uint256 competitionId) external
+```
+
+### Reward Distribution
+
+```solidity
+function claimReward(
+    uint256 competitionId,
+    uint256 amount,
+    bytes32[] calldata proof
+) external
+```
 
 ## Testing
 
-The test suite includes tests for the `Button` and `CompetitionManagerMerkle` contracts. The tests are designed to ensure that the contracts function as expected and integrate correctly with the reward vault.
-
-## Integration with Berachain
-
-The contracts are designed to work with Berachain's Bepolia network. The `CompetitionManagerMerkle` contract is initialized with a reward vault, which is created using the `RewardVaultFactory` provided by Berachain.
-
-## Next Steps
-
-- Further integration with Berachain's network.
-- Additional testing and validation of the contracts.
-- Deployment to the mainnet or testnet as needed.
-
-# Contracts Project
-
-This directory contains the smart contracts for the competition system, managed as a standalone Foundry (Forge) project.
-
-## Setup & Dependency Management
-
-- Dependencies are managed using Forge's built-in system (not git submodules).
-- All dependencies are installed into the `lib/` directory using `forge install`.
-- The Berachain contracts and other libraries are referenced in `remappings.txt`.
-
-### Install Dependencies
-```sh
-forge install https://github.com/berachain/contracts.git
-forge install https://github.com/OpenZeppelin/openzeppelin-contracts.git
-forge install https://github.com/foundry-rs/forge-std.git
-forge install https://github.com/transmissions11/solmate.git
-forge install https://github.com/Vectorized/solady.git
-```
-
-### Build Contracts
-```sh
-forge build
-```
-
-### Run Tests
-```sh
-forge test
-```
-
-## Project Structure
-- `src/` — Solidity contract sources
-- `test/` — Forge test files
-- `script/` — Deployment scripts
-- `lib/` — Solidity dependencies (managed by Forge)
-
-## Notes
-- Do **not** manually add or commit dependencies in `lib/` to git. Use `forge install` to manage them.
-- If you need to update a dependency, re-run `forge install` with the appropriate URL.
-- Remappings are managed in `remappings.txt`.
-
-# Competition Vault
-
-A decentralized competition system built on Berachain that allows users to participate in button-pressing competitions and earn rewards.
-
-## Project Structure
-
-```
-competition-vault/
-├── contracts/              # Smart contracts
-│   ├── src/               # Contract source files
-│   │   ├── ButtonPressCompetition.sol
-│   │   ├── CompetitionRewardVault.sol
-│   │   └── CompetitionToken.sol
-│   └── test/              # Contract tests
-├── indexer/               # NestJS-based indexer service
-│   ├── src/              # Indexer source code
-│   └── prisma/           # Database schema and migrations
-├── bot/                   # Bot service
-├── docker/               # Docker configurations
-├── shared/               # Shared utilities
-└── script/               # Deployment scripts
-```
-
-## Smart Contracts
-
-### ButtonPressCompetition
-A simple competition contract where users can press a button and earn rewards based on their participation. The competition periods are managed off-chain, with the contract only tracking button presses.
-
-### CompetitionRewardVault
-Manages the distribution of rewards to competition participants using a merkle tree for efficient verification.
-
-### CompetitionToken
-The token used for competition participation and rewards.
-
-## Development
-
-### Prerequisites
-- Foundry
-- Node.js
-- Docker (optional)
-
-### Setup
-
-1. Install dependencies:
 ```bash
-# Install Foundry dependencies
-forge install
-
-# Install indexer dependencies
-cd indexer
-npm install
-```
-
-2. Set up environment variables:
-```bash
-cp .env.example .env
-# Fill in the required environment variables
-```
-
-3. Run tests:
-```bash
-# Run contract tests
+# Run all tests
 forge test
 
-# Run indexer tests
-cd indexer
-npm test
+# Run specific test
+forge test --match-test testName
+
+# Run with verbose output
+forge test -vvv
 ```
 
 ## Deployment
 
-1. Deploy contracts:
+1. Update the configuration in `script/Deploy.s.sol`
+2. Run the deployment script:
 ```bash
-forge script script/Deploy.s.sol:Deploy --rpc-url $BERACHAIN_RPC_URL --broadcast
+forge script script/Deploy.s.sol --rpc-url <RPC_URL> --broadcast
 ```
 
-2. Start the indexer:
-```bash
-cd indexer
-npm run start:dev
-```
+## Deployed Contract Addresses
 
-## Architecture
-
-The system consists of three main components:
-
-1. **Smart Contracts**: Handle the core competition logic and reward distribution
-2. **Indexer**: Tracks competition events and manages reward distribution
-3. **Bot**: Monitors the blockchain and triggers competition periods
+- **CompetitionManagerMerkle**: `0x5b73C5498c1E3b4dbA84de0F1833c4a029d90519`
+- **CompetitionToken**: `0xC7f2Cf4845C6db0e1a1e91ED41Bcd0FcC1b0E141`
+- **RewardVault**: `0x87345fAa738117C1f161D060b192bb8548a599d8`
+- **Button**: `0x90193C961A926261B756D1E5bb255e67ff9498A1`
 
 ## License
 

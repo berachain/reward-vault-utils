@@ -1,75 +1,107 @@
 # Competition Vault Indexer
 
-This is the indexer service for the Competition Vault project. It listens to button press events from the smart contract and maintains a database of all button presses. It also generates merkle trees for reward distribution.
+A NestJS-based service that tracks competition events, maintains user statistics, and provides APIs for frontend integration.
+
+## Overview
+
+The indexer service:
+- Tracks competition events from the blockchain
+- Maintains a database of user participation
+- Generates merkle trees for reward distribution
+- Provides RESTful APIs for frontend integration
 
 ## Features
 
-- Real-time indexing of button press events
-- PostgreSQL database for storing button press data
-- Merkle tree generation for reward distribution
-- Time-window based querying of button press data
+- Real-time event indexing
+- PostgreSQL database with Prisma ORM
+- RESTful API endpoints
+- Docker support for easy deployment
+- Integration with Berachain's proof of liquidity
 
-## Prerequisites
+## Development Setup
+
+### Prerequisites
 
 - Node.js (v18 or later)
-- PostgreSQL
-- Access to Berachain RPC endpoint
+- pnpm
+- PostgreSQL (or Docker)
+- Docker and Docker Compose (optional)
 
-## Setup
+### Installation
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+# Install dependencies
+pnpm install
 
-2. Set up environment variables:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
+# Copy environment file
+cp .env.example .env
 
-3. Set up the database:
-   ```bash
-   npx prisma migrate dev
-   ```
+# Generate Prisma client
+pnpm prisma generate
 
-4. Start the development server:
-   ```bash
-   npm run start:dev
-   ```
+# Run database migrations
+pnpm prisma migrate dev
+```
 
-## Database Schema
+### Running the Service
 
-The indexer uses two main tables:
+```bash
+# Development mode
+pnpm start:dev
 
-1. `ButtonPress`: Stores all button press events
-   - `id`: Unique identifier
-   - `address`: EVM address of the presser
-   - `timestamp`: When the button was pressed
-   - `blockNumber`: Block number of the press
-   - `txHash`: Transaction hash
+# Production mode
+pnpm build
+pnpm start:prod
+```
 
-2. `RewardDistribution`: Stores merkle tree data for reward distribution
-   - `id`: Unique identifier
-   - `startTime`: Start of the reward period
-   - `endTime`: End of the reward period
-   - `totalRewards`: Total rewards to distribute
-   - `merkleRoot`: Root of the merkle tree
-   - `merkleProofs`: JSON object containing proofs for each address
+### Docker Setup
+
+```bash
+# Build and start services
+docker compose up --build
+
+# View logs
+docker compose logs -f
+```
 
 ## API Endpoints
 
-The indexer provides the following functionality:
+### Competition Endpoints
 
-1. Get button presses in a time window
-2. Get button press counts by address
-3. Generate merkle tree for reward distribution
+- `GET /competitions`: List all competitions
+- `GET /competitions/:id`: Get competition details
+- `POST /competitions`: Create new competition
 
-## Development
+### User Endpoints
 
-- Run tests: `npm test`
-- Generate Prisma client: `npx prisma generate`
-- View database: `npx prisma studio`
+- `GET /users/:address`: Get user statistics
+- `GET /users/:address/participations`: Get user's competition participations
+
+### Reward Endpoints
+
+- `GET /rewards/:competitionId`: Get competition rewards
+- `POST /rewards/:competitionId/claim`: Claim rewards
+
+## Database Schema
+
+The indexer uses Prisma with PostgreSQL. Key models include:
+
+- `Competition`: Competition details and parameters
+- `ButtonPress`: User participation records
+- `Reward`: Reward distribution records
+
+## Testing
+
+```bash
+# Unit tests
+pnpm test
+
+# E2E tests
+pnpm test:e2e
+
+# Test coverage
+pnpm test:cov
+```
 
 ## License
 

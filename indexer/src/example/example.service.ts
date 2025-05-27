@@ -20,6 +20,8 @@ export class ExampleService {
           data: {
             address,
             timestamp,
+            blockNumber: Math.floor(Math.random() * 1000000), // Random block number
+            txHash: '0x' + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(''), // Random transaction hash
           },
         });
         lastTimestamp = timestamp;

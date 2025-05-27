@@ -11,7 +11,9 @@ contract DeployCompetitionManagerMerkle is Script {
     address constant REWARD_VAULT_FACTORY = 0x94Ad6Ac84f6C6FbA8b8CCbD71d9f4f101def52a8;
 
     function run() external {
-        vm.startBroadcast();
+        // Use the private key from the environment variable
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        vm.startBroadcast(deployerPrivateKey);
 
         // 1. Deploy CompetitionManagerMerkle
         CompetitionManagerMerkle manager = new CompetitionManagerMerkle();
