@@ -1,6 +1,7 @@
 {
   "name": "competition-vault",
   "private": true,
+  "packageManager": "pnpm@8.15.4",
   "scripts": {
     "prepare": "husky install",
     "commitlint": "commitlint --edit"
