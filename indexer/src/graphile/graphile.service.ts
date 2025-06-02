@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { makeWorkerUtils, WorkerUtils } from 'graphile-worker';
 
 export enum GraphileWorkerPattern {
@@ -6,16 +7,22 @@ export enum GraphileWorkerPattern {
 }
 
 @Injectable()
-export class GraphileService {
+export class GraphileService implements OnModuleInit {
   private workerUtils: WorkerUtils;
 
-  constructor() {
-    this.initializeWorker();
+  constructor(private configService: ConfigService) {}
+
+  async onModuleInit() {
+    await this.initializeWorker();
   }
 
   private async initializeWorker() {
+    const connectionString = this.configService.get<string>('DATABASE_URL');
+    if (!connectionString) {
+      throw new Error('DATABASE_URL must be set in environment');
+    }
     this.workerUtils = await makeWorkerUtils({
-      connectionString: process.env.DATABASE_URL,
+      connectionString,
     });
   }
 
