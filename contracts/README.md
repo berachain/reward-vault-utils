@@ -1,97 +1,62 @@
-# Competition Vault Contracts
+# Reward Vault Tooling
 
-Smart contracts for managing competitions and reward distribution on Berachain, integrated with proof of liquidity mechanisms.
+A comprehensive collection of smart contracts, tools, and utilities for building reward distribution systems on Berachain.
 
 ## Overview
 
-The Competition Vault contracts provide a framework for:
-- Creating and managing competitions
-- Tracking user participation
-- Integrating with Berachain's proof of liquidity
-- Distributing rewards based on participation and liquidity metrics
+This repository provides a suite of tools for developers building reward distribution systems, with a focus on:
+- Gas-efficient reward distribution
+- Competition management
+- Merkle-based reward verification
+- Example implementations
+- Integration with Berachain's reward vault system
 
-## Contract Structure
+## Directory Structure
 
-- `CompetitionVault.sol`: Main contract for competition management and reward distribution
-- `RewardVault.sol`: Handles reward token distribution and merkle root verification
-- `ButtonPress.sol`: Tracks user participation in competitions
+### Core Contracts (`src/core/`)
+Core contracts that form the foundation of the reward vault system:
+- `CompetitionManager`: Main contract for competition and token management
+- Handles competition token creation, reward vault registration, and basic competition functionality
 
-## Development Setup
+### Merkle-based Distribution (`src/merkle/`)
+Contracts implementing gas-efficient reward distribution using merkle proofs:
+- `CompetitionManagerMerkle`: Extends CompetitionManager with merkle-based reward distribution
+- Features merkle tree verification, gas-efficient claims, and competition reward allocation
 
-### Prerequisites
+### Interfaces (`src/interfaces/`)
+Standard interfaces for system integration:
+- `IRewardVault`: Interface for reward vault functionality (staking, distribution, claiming)
+- `IRewardVaultFactory`: Interface for reward vault deployment and configuration
 
-- Foundry
-- Node.js (v18 or later)
-- Git
+### Examples (`src/examples/`)
+Example contracts and implementations:
+- `Button`: Simple button press tracking example
+- `CompetitionToken`: Example ERC20 token implementation for competition staking
 
-### Installation
+## Getting Started
 
+1. Install dependencies:
 ```bash
-# Install dependencies
 forge install
+```
 
-# Build contracts
+2. Build the contracts:
+```bash
 forge build
+```
 
-# Run tests
+3. Run tests:
+```bash
 forge test
 ```
 
-## Contract Integration
+## Documentation
 
-### Competition Creation
+The documentation website (coming soon) will provide comprehensive guides and examples for each component.
 
-```solidity
-function createCompetition(
-    uint256 startTime,
-    uint256 endTime,
-    uint256 rewardAmount
-) external returns (uint256 competitionId)
-```
+## Contributing
 
-### Participation
-
-```solidity
-function participate(uint256 competitionId) external
-```
-
-### Reward Distribution
-
-```solidity
-function claimReward(
-    uint256 competitionId,
-    uint256 amount,
-    bytes32[] calldata proof
-) external
-```
-
-## Testing
-
-```bash
-# Run all tests
-forge test
-
-# Run specific test
-forge test --match-test testName
-
-# Run with verbose output
-forge test -vvv
-```
-
-## Deployment
-
-1. Update the configuration in `script/Deploy.s.sol`
-2. Run the deployment script:
-```bash
-forge script script/Deploy.s.sol --rpc-url <RPC_URL> --broadcast
-```
-
-## Deployed Contract Addresses
-
-- **CompetitionManagerMerkle**: `0x5b73C5498c1E3b4dbA84de0F1833c4a029d90519`
-- **CompetitionToken**: `0xC7f2Cf4845C6db0e1a1e91ED41Bcd0FcC1b0E141`
-- **RewardVault**: `0x87345fAa738117C1f161D060b192bb8548a599d8`
-- **Button**: `0x90193C961A926261B756D1E5bb255e67ff9498A1`
+We welcome contributions! Please see our contributing guidelines for more information.
 
 ## License
 

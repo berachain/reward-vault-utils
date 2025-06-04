@@ -66,37 +66,37 @@ export class IndexerService implements OnModuleInit {
       this.logger.log(`Processing blocks ${fromBlock} to ${endBlock}...`);
 
       try {
-        const events = await this.button.queryFilter(
-          this.button.filters.ButtonPressed(),
-          fromBlock,
-          endBlock
-        );
+      const events = await this.button.queryFilter(
+        this.button.filters.ButtonPressed(),
+        fromBlock,
+        endBlock
+      );
 
         this.logger.log(`Found ${events.length} button press events in blocks ${fromBlock}-${endBlock}`);
 
-        await this.prisma.$transaction(async (tx: PrismaService) => {
-          for (const event of events) {
-            const { user, timestamp } = event.args;
+      await this.prisma.$transaction(async (tx: PrismaService) => {
+        for (const event of events) {
+          const { user, timestamp } = event.args;
             this.logger.debug(`Processing button press from ${user} at block ${event.blockNumber}`);
             
-            await tx.buttonPress.upsert({
-              where: { txHash: event.transactionHash },
-              update: {},
-              create: {
-                address: user,
-                timestamp: new Date(Number(timestamp) * 1000),
-                blockNumber: event.blockNumber,
-                txHash: event.transactionHash,
-              },
-            });
-          }
-          
-          await tx.indexerState.upsert({
-            where: { key: 'lastProcessedBlock' },
-            update: { value: String(endBlock) },
-            create: { key: 'lastProcessedBlock', value: String(endBlock) },
+          await tx.buttonPress.upsert({
+            where: { txHash: event.transactionHash },
+            update: {},
+            create: {
+              address: user,
+              timestamp: new Date(Number(timestamp) * 1000),
+              blockNumber: event.blockNumber,
+              txHash: event.transactionHash,
+            },
           });
+        }
+          
+        await tx.indexerState.upsert({
+          where: { key: 'lastProcessedBlock' },
+          update: { value: String(endBlock) },
+          create: { key: 'lastProcessedBlock', value: String(endBlock) },
         });
+      });
 
         this.logger.log(`Successfully processed blocks ${fromBlock}-${endBlock}`);
       } catch (error) {

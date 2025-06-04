@@ -1,75 +1,63 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.19;
 
 import {Test} from "forge-std/Test.sol";
-import {Button} from "../src/Button.sol";
+import {Button} from "../src/examples/Button.sol";
 
 contract ButtonTest is Test {
     Button public button;
-    address public user1;
-    address public user2;
+    address public alice = makeAddr("alice");
+    address public bob = makeAddr("bob");
+    uint256 public constant INITIAL_TIMESTAMP = 1000;
 
     function setUp() public {
+        vm.warp(INITIAL_TIMESTAMP);
         button = new Button();
-        user1 = makeAddr("user1");
-        user2 = makeAddr("user2");
+        vm.label(address(button), "Button");
+        vm.warp(block.timestamp + 1 hours);
     }
 
-    function testInitialLastPressTime() public {
-        vm.warp(3600);
-        emit log_named_uint("block.timestamp", block.timestamp);
-        emit log_named_uint("lastPressTime[user1]", button.lastPressTime(user1));
-        assertEq(button.lastPressTime(user1), 0);
+    function test_InitialState() public view {
+        assertEq(button.COOLDOWN_PERIOD(), 1 hours);
+        assertEq(button.lastPressTime(alice), 0);
+        assertEq(button.lastPressTime(bob), 0);
     }
 
-    function testPressButton() public {
-        vm.warp(3600);
-        emit log_named_uint("block.timestamp", block.timestamp);
-        emit log_named_uint("lastPressTime[user1]", button.lastPressTime(user1));
-        vm.startPrank(user1);
+    function test_PressButton() public {
+        vm.startPrank(alice);
         button.pressButton();
-        assertEq(button.lastPressTime(user1), block.timestamp);
+        assertEq(button.lastPressTime(alice), block.timestamp);
         vm.stopPrank();
     }
 
-    function testCannotPressWithinOneHour() public {
-        vm.warp(3600);
-        emit log_named_uint("block.timestamp", block.timestamp);
-        emit log_named_uint("lastPressTime[user1]", button.lastPressTime(user1));
-        vm.startPrank(user1);
+    function test_PressButtonCooldown() public {
+        vm.startPrank(alice);
         button.pressButton();
-        vm.expectRevert("Can only press button once per hour");
+        vm.expectRevert(Button.ButtonCooldownActive.selector);
         button.pressButton();
         vm.stopPrank();
     }
 
-    function testCanPressAfterOneHour() public {
-        vm.warp(3600);
-        emit log_named_uint("block.timestamp", block.timestamp);
-        emit log_named_uint("lastPressTime[user1]", button.lastPressTime(user1));
-        vm.startPrank(user1);
+    function test_PressButtonAfterCooldown() public {
+        uint256 startTime = block.timestamp;
+        vm.startPrank(alice);
         button.pressButton();
-        uint256 firstPressTime = block.timestamp;
-        
-        // Fast forward 1 hour + 1 second
-        vm.warp(firstPressTime + 1 hours + 1 seconds);
-        
-        button.pressButton();
-        assertEq(button.lastPressTime(user1), block.timestamp);
-        vm.stopPrank();
-    }
-
-    function testDifferentUsersCanPress() public {
-        vm.warp(3600);
-        emit log_named_uint("block.timestamp", block.timestamp);
-        emit log_named_uint("lastPressTime[user1]", button.lastPressTime(user1));
-        vm.startPrank(user1);
+        vm.warp(startTime + 1 hours + 1);
         button.pressButton();
         vm.stopPrank();
 
-        vm.startPrank(user2);
-        button.pressButton();
-        assertEq(button.lastPressTime(user2), block.timestamp);
-        vm.stopPrank();
+        assertEq(button.lastPressTime(alice), startTime + 1 hours + 1);
     }
-} 
+
+    function test_MultipleUsers() public {
+        vm.startPrank(alice);
+        button.pressButton();
+        vm.stopPrank();
+
+        vm.startPrank(bob);
+        button.pressButton();
+        vm.stopPrank();
+
+        assertEq(button.lastPressTime(bob), block.timestamp);
+    }
+}
