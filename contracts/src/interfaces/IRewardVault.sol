@@ -15,8 +15,12 @@ interface IRewardVault {
     event IncentivesProcessed(bytes indexed pubkey, address indexed token, uint256 bgtEmitted, uint256 amount);
     event IncentivesProcessFailed(bytes indexed pubkey, address indexed token, uint256 bgtEmitted, uint256 amount);
     event IncentiveAdded(address indexed token, address sender, uint256 amount, uint256 incentiveRate);
-    event BGTBoosterIncentivesProcessed(bytes indexed pubkey, address indexed token, uint256 bgtEmitted, uint256 amount);
-    event BGTBoosterIncentivesProcessFailed(bytes indexed pubkey, address indexed token, uint256 bgtEmitted, uint256 amount);
+    event BGTBoosterIncentivesProcessed(
+        bytes indexed pubkey, address indexed token, uint256 bgtEmitted, uint256 amount
+    );
+    event BGTBoosterIncentivesProcessFailed(
+        bytes indexed pubkey, address indexed token, uint256 bgtEmitted, uint256 amount
+    );
 
     // Getters
     function distributor() external view returns (address);
@@ -51,4 +55,4 @@ interface IRewardVault {
     function updateIncentiveManager(address token, address newManager) external;
     function addIncentive(address token, uint256 amount, uint256 incentiveRate) external;
     function accountIncentives(address token, uint256 amount) external;
-} 
+}
