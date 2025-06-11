@@ -1,41 +1,72 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
-import { Button__factory, Button } from '../types';
-import { ethers } from 'ethers';
+import { createPublicClient, http, getContract, parseAbiItem } from 'viem';
 
 const CHUNK_SIZE = 1000;
 const FINALITY = 5;
 
 @Injectable()
 export class IndexerService implements OnModuleInit {
-  private provider: ethers.JsonRpcProvider;
-  private button: Button;
-  private readonly logger = new Logger(IndexerService.name);
+  private logger = new Logger(IndexerService.name);
+  private client: ReturnType<typeof createPublicClient>;
+  private buttonContract: ReturnType<typeof getContract>;
 
   constructor(
-    private configService: ConfigService,
-    private prisma: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async onModuleInit() {
-    this.logger.log('Initializing indexer service...');
     const rpcUrl = this.configService.get<string>('RPC_URL');
     const buttonAddress = this.configService.get<string>('BUTTON_CONTRACT_ADDRESS');
     if (!rpcUrl || !buttonAddress) {
       this.logger.error('Missing required environment variables: RPC_URL and BUTTON_CONTRACT_ADDRESS');
       throw new Error('RPC_URL and BUTTON_CONTRACT_ADDRESS must be set in environment');
     }
-    
-    this.logger.log(`Connecting to RPC: ${rpcUrl}`);
-    this.provider = new ethers.JsonRpcProvider(rpcUrl);
-    this.button = Button__factory.connect(buttonAddress, this.provider);
+    this.client = createPublicClient({
+      transport: http(rpcUrl),
+      chain: undefined, // Optionally set chain config
+    });
+    this.buttonContract = getContract({
+      address: buttonAddress as `0x${string}`,
+      abi: [
+        // Replace with actual ABI or import from abis/
+        parseAbiItem('event ButtonPressed(address indexed user, uint256 timestamp)'),
+      ],
+      client: this.client,
+    });
     this.logger.log(`Connected to button contract at: ${buttonAddress}`);
+    await this.indexButtonPresses();
+  }
 
-    // Start the indexer
-    const startBlock = await this.getLastProcessedBlock() + 1;
-    this.logger.log(`Starting indexer from block ${startBlock}`);
-    await this.indexButtonPresses(startBlock);
+  async indexButtonPresses(startBlock?: number) {
+    const fromBlock = startBlock ?? 0;
+    const latestBlock = await this.client.getBlockNumber();
+    const toBlock = latestBlock;
+    const logs = await this.client.getLogs({
+      address: this.buttonContract.address,
+      event: parseAbiItem('event ButtonPressed(address indexed user, uint256 timestamp)'),
+      fromBlock,
+      toBlock,
+    });
+    this.logger.log(`Found ${logs.length} button press events in blocks ${fromBlock}-${toBlock}`);
+    for (const log of logs) {
+      const { user, timestamp } = log.args as any;
+      this.logger.debug(`Processing button press from ${user} at block ${log.blockNumber}`);
+      await this.prisma.buttonPress.upsert({
+        where: {
+          txHash: log.transactionHash,
+        },
+        update: {},
+        create: {
+          txHash: log.transactionHash,
+          user,
+          timestamp: new Date(Number(timestamp) * 1000),
+          blockNumber: Number(log.blockNumber),
+        },
+      });
+    }
   }
 
   async getLastProcessedBlock(): Promise<number> {
@@ -54,62 +85,6 @@ export class IndexerService implements OnModuleInit {
     });
   }
 
-  async indexButtonPresses(startBlock: number) {
-    let latestBlock = await this.provider.getBlockNumber();
-    let toBlock = latestBlock - FINALITY;
-    let fromBlock = startBlock;
-
-    this.logger.log(`Indexing from block ${fromBlock} to ${toBlock} (latest: ${latestBlock})`);
-
-    while (fromBlock <= toBlock) {
-      const endBlock = Math.min(fromBlock + CHUNK_SIZE - 1, toBlock);
-      this.logger.log(`Processing blocks ${fromBlock} to ${endBlock}...`);
-
-      try {
-      const events = await this.button.queryFilter(
-        this.button.filters.ButtonPressed(),
-        fromBlock,
-        endBlock
-      );
-
-        this.logger.log(`Found ${events.length} button press events in blocks ${fromBlock}-${endBlock}`);
-
-      await this.prisma.$transaction(async (tx: PrismaService) => {
-        for (const event of events) {
-          const { user, timestamp } = event.args;
-            this.logger.debug(`Processing button press from ${user} at block ${event.blockNumber}`);
-            
-          await tx.buttonPress.upsert({
-            where: { txHash: event.transactionHash },
-            update: {},
-            create: {
-              address: user,
-              timestamp: new Date(Number(timestamp) * 1000),
-              blockNumber: event.blockNumber,
-              txHash: event.transactionHash,
-            },
-          });
-        }
-          
-        await tx.indexerState.upsert({
-          where: { key: 'lastProcessedBlock' },
-          update: { value: String(endBlock) },
-          create: { key: 'lastProcessedBlock', value: String(endBlock) },
-        });
-      });
-
-        this.logger.log(`Successfully processed blocks ${fromBlock}-${endBlock}`);
-      } catch (error) {
-        this.logger.error(`Error processing blocks ${fromBlock}-${endBlock}: ${error.message}`);
-        throw error;
-      }
-
-      fromBlock = endBlock + 1;
-    }
-    this.logger.log('Indexer caught up to chain head.');
-  }
-
-  // Method to get button presses within a time window
   async getButtonPressesInTimeWindow(startTime: Date, endTime: Date) {
     this.logger.debug(`Fetching button presses from ${startTime} to ${endTime}`);
     return this.prisma.buttonPress.findMany({
@@ -122,7 +97,6 @@ export class IndexerService implements OnModuleInit {
     });
   }
 
-  // Method to get button press counts by address within a time window
   async getButtonPressCountsByAddress(startTime: Date, endTime: Date) {
     this.logger.debug(`Fetching button press counts from ${startTime} to ${endTime}`);
     const presses = await this.prisma.buttonPress.groupBy({
@@ -145,7 +119,7 @@ export class IndexerService implements OnModuleInit {
   }
 
   async getCurrentBlock(): Promise<number> {
-    const block = await this.provider.getBlockNumber();
+    const block = await this.client.getBlockNumber();
     this.logger.debug(`Current block: ${block}`);
     return block;
   }
