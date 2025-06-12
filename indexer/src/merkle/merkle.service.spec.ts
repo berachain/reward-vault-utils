@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MerkleService } from './merkle.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { ethers } from 'ethers';
+import { keccak256, concatBytes } from 'viem';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { encodeAbiParameters, parseUnits } from 'viem';
 
 describe('MerkleService', () => {
   let service: MerkleService;
@@ -156,6 +157,7 @@ describe('MerkleService', () => {
         address,
         rewardAmount: '1000000000000000000',
         proof: ['0x1234567890123456789012345678901234567890123456789012345678901234'],
+        claim: { merkleRoot: '0xmerkleRoot' },
       };
 
       mockPrismaService.merkleParticipant.findUnique.mockResolvedValue(mockParticipant);
@@ -163,10 +165,9 @@ describe('MerkleService', () => {
       const result = await service.getUserProof(claimId, address);
 
       expect(result).toBeDefined();
-      expect(result.claimId).toBe(claimId);
-      expect(result.address).toBe(address);
       expect(result.rewardAmount).toBe(mockParticipant.rewardAmount);
       expect(result.proof).toEqual(mockParticipant.proof);
+      expect(result.merkleRoot).toBe(mockParticipant.claim.merkleRoot);
     });
 
     it('should throw an error if no proof is found', async () => {

@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { ethers } from 'ethers';
 import { randomBytes } from 'crypto';
+import { bytesToHex } from 'viem';
+import { Prisma } from '@prisma/client';
+import { keccak256, concatBytes, encodeAbiParameters, parseUnits, ByteArray, hexToBytes } from 'viem';
 
 export interface ButtonPress {
   address: string;
@@ -29,6 +31,7 @@ export class MerkleService {
         address: true,
       },
     });
+    console.log('[merkle.service] Number of button presses found:', presses.length);
     if (presses.length === 0) {
       throw new Error('No button presses in the given window');
     }
@@ -36,7 +39,7 @@ export class MerkleService {
     // 2. Calculate total presses
     const totalPresses = presses.reduce((sum: number, p: { address: string; _count: { address: number } }) => sum + p._count.address, 0);
     // 3. Convert totalReward to wei (string)
-    const totalRewardWei = ethers.parseUnits(totalReward, 18).toString();
+    const totalRewardWei = parseUnits(totalReward, 18).toString();
 
     // 4. Calculate each user's reward (in wei, as string)
     const participants = presses.map((press: { address: string; _count: { address: number } }, i: number) => {
@@ -59,39 +62,45 @@ export class MerkleService {
     }
 
     // 6. Generate a claim id (random or hash)
-    const claimId = ethers.hexlify(randomBytes(16));
+    const claimId = bytesToHex(randomBytes(32), { size: 32 }) as `0x${string}`;
+    console.log('[merkle.service] Generated claimId:', claimId, 'length:', claimId.length);
+    // Ensure claimId is 0x + 64 hex chars
+    if (claimId.length !== 66) {
+      throw new Error('Generated claimId is not bytes32: ' + claimId);
+    }
 
     // 7. Build Merkle tree: leaf = keccak256(abi.encode(claimId, address, rewardAmount))
     const leaves = participants.map((p: { address: string; reward: string }) =>
-      ethers.keccak256(
-        ethers.AbiCoder.defaultAbiCoder().encode(
-          ['bytes16', 'address', 'uint256'],
-          [claimId, p.address, p.reward]
-        )
-      )
+      keccak256(encodeAbiParameters(
+        [
+          { type: 'bytes32' },
+          { type: 'address' },
+          { type: 'uint256' }
+        ],
+        [claimId, p.address as `0x${string}`, BigInt(p.reward)]
+      ))
     );
     const tree = this.generateMerkleTree(leaves);
     const merkleRoot = tree.root;
 
     // 8. Store MerkleClaim and MerkleParticipant records
     await this.prisma.$transaction(async (tx: PrismaService) => {
-      await tx.merkleClaim.create({
-        data: {
-          id: claimId,
-          merkleRoot,
-          start,
-          end,
-          prizeAmount: totalRewardWei,
-          participantCount: participants.length,
-          participants: {
-            create: participants.map((p: { address: string; reward: string }, i: number) => ({
-              address: p.address,
-              rewardAmount: p.reward,
-              proof: this.generateProof(leaves, i, tree.layers),
-            })),
-          },
+      const claimData: Prisma.MerkleClaimCreateInput = {
+        claimId,
+        merkleRoot,
+        start,
+        end,
+        prizeAmount: totalRewardWei,
+        participantCount: participants.length,
+        participants: {
+          create: participants.map((p: { address: string; reward: string }, i: number) => ({
+            address: p.address,
+            rewardAmount: p.reward,
+            proof: this.generateProof(leaves, i, tree.layers),
+          })),
         },
-      });
+      };
+      await tx.merkleClaim.create({ data: claimData });
     });
 
     return {
@@ -115,9 +124,7 @@ export class MerkleService {
           newNodes.push(nodes[i]);
         } else {
           newNodes.push(
-            ethers.keccak256(
-              ethers.concat([nodes[i], nodes[i + 1]])
-            )
+            keccak256(concatBytes([hexToBytes(nodes[i] as `0x${string}`), hexToBytes(nodes[i + 1] as `0x${string}`)]))
           );
         }
       }
@@ -155,15 +162,20 @@ export class MerkleService {
           address,
         },
       },
+      include: {
+        claim: true,
+      },
     });
+
     if (!participant) {
-      throw new Error('No proof found for this user and claim');
+      throw new Error('No proof found for this address');
     }
+
     return {
-      claimId,
-      address,
+      address: participant.address,
       rewardAmount: participant.rewardAmount,
       proof: participant.proof,
+      merkleRoot: participant.claim.merkleRoot,
     };
   }
 

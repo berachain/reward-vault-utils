@@ -4,7 +4,6 @@ import { privateKeyToAccount } from 'viem/accounts';
 import type { Address } from 'viem';
 import { berachainBepolia } from 'viem/chains';
 import { readFileSync, existsSync, writeFileSync } from 'fs';
-import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import chalk from 'chalk';
 import readline from 'readline';
@@ -35,9 +34,7 @@ import readline from 'readline';
 
 console.log('Script started...');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
+const __dirname = process.cwd();
 console.log('Current directory:', __dirname);
 
 const REWARD_CLAIMERS_FILE = join(__dirname, 'reward_claimers.json');
@@ -163,8 +160,9 @@ async function canPressButton(address: Address): Promise<boolean> {
 async function pressButton(address: Address, privateKey: string): Promise<string> {
   try {
     // Create a wallet client with the private key
+    const account = privateKeyToAccount(privateKey as `0x${string}`);
     const walletClient = createWalletClient({
-      account: address,
+      account,
       transport: http(RPC_URL),
       chain: berachainBepolia,
     });
@@ -174,7 +172,8 @@ async function pressButton(address: Address, privateKey: string): Promise<string
       address: BUTTON_ADDRESS,
       abi: BUTTON_ABI,
       functionName: 'pressButton',
-      account: address,
+      chain: berachainBepolia,
+      account,
     });
 
     return hash;
@@ -200,68 +199,45 @@ async function processButtonPresses() {
 
     // Check if reward_claimers.json exists
     if (existsSync(REWARD_CLAIMERS_FILE)) {
-      const data = readFileSync(REWARD_CLAIMERS_FILE, 'utf-8');
-      const existingClaimers = JSON.parse(data) as { address: string; privateKey: string }[];
+      const existingClaimers = JSON.parse(readFileSync(REWARD_CLAIMERS_FILE, 'utf-8'));
+      console.log(`Found ${existingClaimers.length} existing claimers in reward_claimers.json`);
       
-      if (existingClaimers.length > 0) {
-        console.log(chalk.blue(`Found ${existingClaimers.length} existing claimers in reward_claimers.json`));
-        const shouldLoad = await askQuestion('Do you want to load these addresses?');
-        
-        if (shouldLoad) {
-          claimers = existingClaimers;
-        } else {
-          console.log(chalk.yellow('Warning: Old addresses will be lost. Creating new file...'));
-          writeFileSync(REWARD_CLAIMERS_FILE, JSON.stringify([], null, 2));
-          console.log(chalk.green('Created empty reward_claimers.json. Please add claimer addresses to the file.'));
-          rl.close();
-          return;
-        }
+      const loadExisting = await askQuestion('Do you want to load these addresses?');
+      if (loadExisting) {
+        claimers = existingClaimers;
       }
-    } else {
-      console.log(chalk.yellow('reward_claimers.json not found. Creating empty file...'));
-      writeFileSync(REWARD_CLAIMERS_FILE, JSON.stringify([], null, 2));
-      console.log(chalk.green('Created empty reward_claimers.json. Please add claimer addresses to the file.'));
-      rl.close();
-      return;
     }
 
     if (claimers.length === 0) {
-      console.log(chalk.yellow('No claimers found in reward_claimers.json. Please add claimer addresses to the file.'));
-      rl.close();
+      console.log('No claimers loaded. Please add addresses to reward_claimers.json');
       return;
     }
 
-    console.log(chalk.blue(`Processing ${claimers.length} claimers`));
+    console.log(`Processing ${claimers.length} claimers\n`);
 
-    // Process each claimer
     for (const claimer of claimers) {
-      const address = claimer.address as Address;
-      const privateKey = claimer.privateKey;
-      console.log(chalk.yellow(`\nProcessing claimer: ${address}`));
-
+      console.log(`\nProcessing claimer: ${claimer.address}`);
+      
       try {
-        const canPress = await canPressButton(address);
+        const canPress = await canPressButton(claimer.address as Address);
+        
         if (canPress) {
-          console.log(chalk.green('Can press button - pressing now'));
-          const txHash = await pressButton(address, privateKey);
-          console.log(`Successfully pressed button for ${address}. Tx hash: ${txHash}`);
+          console.log('Can press button - pressing now');
+          const txHash = await pressButton(claimer.address as Address, claimer.privateKey);
+          console.log(chalk.green(`Successfully pressed button for ${claimer.address}. Tx hash: ${txHash}`));
         } else {
-          console.log(chalk.red('Cannot press button - skipping'));
+          console.log(chalk.yellow(`Cannot press button for ${claimer.address} - cooldown period not elapsed`));
         }
       } catch (error) {
-        console.error(chalk.red(`Error processing claimer ${address}:`), error);
+        console.error(chalk.red(`Error processing ${claimer.address}:`), error);
       }
     }
   } catch (error) {
-    console.error(chalk.red('Error in main process:'), error);
-    process.exit(1);
+    console.error('Error in processButtonPresses:', error);
   } finally {
     rl.close();
   }
 }
 
 // Run the script
-processButtonPresses().catch((error) => {
-  console.error(chalk.red('Fatal error:'), error);
-  process.exit(1);
-}); 
+processButtonPresses().catch(console.error); 
