@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   db:
-    image: postgres:latest
+    image: postgres:16
     restart: always
     environment:
       POSTGRES_USER: postgres
@@ -10,7 +10,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -23,8 +23,7 @@ services:
       dockerfile: Dockerfile
     command: pnpm run start:dev
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/competition_vault
-      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/competition_vault
       NODE_ENV: development
     ports:
       - '3000:3000'
@@ -35,6 +34,7 @@ services:
       - ./indexer:/app
       - /app/node_modules
     restart: unless-stopped
+    network_mode: host
 
 volumes:
-  db_data: 
+  postgres_data: 

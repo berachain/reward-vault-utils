@@ -6,6 +6,8 @@ import {RewardVaultManagerMerkle} from "../src/examples/RewardVaultManagerMerkle
 import {RewardVaultToken} from "../src/examples/RewardVaultToken.sol";
 import {IRewardVaultFactory} from "../src/interfaces/IRewardVaultFactory.sol";
 import {Button} from "../src/examples/Button.sol";
+import {FBGT} from "../src/examples/FBGT.sol";
+import {LiquidBGTMinter} from "../src/examples/LiquidBGTMinter.sol";
 
 contract DeployRewardVaultManagerMerkle is Script {
     // Bepolia RewardVaultFactory address
@@ -27,12 +29,24 @@ contract DeployRewardVaultManagerMerkle is Script {
         // 3. Initialize the manager with the reward vault
         manager.initialize(rewardVault);
 
-        // 4. Log addresses
+        // 4. Deploy FBGT token
+        FBGT fbgt = new FBGT();
+        console.log("FBGT:", address(fbgt));
+
+        // 5. Deploy LiquidBGTMinter
+        LiquidBGTMinter minter = new LiquidBGTMinter(address(fbgt));
+        console.log("LiquidBGTMinter:", address(minter));
+
+        // 6. Transfer FBGT ownership to the minter
+        fbgt.transferOwnership(address(minter));
+        console.log("Transferred FBGT ownership to minter");
+
+        // 7. Log addresses
         console.log("RewardVaultManagerMerkle:", address(manager));
         console.log("RewardVaultToken:", rewardVaultToken);
         console.log("RewardVault:", rewardVault);
 
-        // 5. Deploy Button and log its address
+        // 8. Deploy Button and log its address
         Button button = new Button();
         console.log("Button:", address(button));
 

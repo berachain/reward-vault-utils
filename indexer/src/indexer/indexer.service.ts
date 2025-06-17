@@ -1,46 +1,72 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
-import { Button__factory, Button } from '../types';
-import { ethers } from 'ethers';
+import { createPublicClient, http, getContract, parseAbiItem, type Address } from 'viem';
+import { berachainBepolia } from 'viem/chains';
+import { setTimeout } from 'timers/promises';
 
 const CHUNK_SIZE = 1000;
 const FINALITY = 5;
 
+const BUTTON_ABI = [
+  parseAbiItem('event ButtonPressed(address indexed user, uint256 timestamp)'),
+  parseAbiItem('function canPressButton(address account) view returns (bool)'),
+  parseAbiItem('function pressButton()'),
+  parseAbiItem('function lastPressTime(address account) view returns (uint256)'),
+  parseAbiItem('function COOLDOWN_PERIOD() view returns (uint256)'),
+] as const;
+
 @Injectable()
 export class IndexerService implements OnModuleInit {
-  private provider: ethers.JsonRpcProvider;
-  private button: Button;
   private readonly logger = new Logger(IndexerService.name);
+  private readonly BATCH_SIZE = 10000;
+  // TODO: Revisit type safety for viem client and contract
+  private client: any;
+  private buttonContract: any;
 
   constructor(
-    private configService: ConfigService,
-    private prisma: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async onModuleInit() {
     this.logger.log('Initializing indexer service...');
     const rpcUrl = this.configService.get<string>('RPC_URL');
     const buttonAddress = this.configService.get<string>('BUTTON_CONTRACT_ADDRESS');
+    
     if (!rpcUrl || !buttonAddress) {
       this.logger.error('Missing required environment variables: RPC_URL and BUTTON_CONTRACT_ADDRESS');
       throw new Error('RPC_URL and BUTTON_CONTRACT_ADDRESS must be set in environment');
     }
-    
+
     this.logger.log(`Connecting to RPC: ${rpcUrl}`);
-    this.provider = new ethers.JsonRpcProvider(rpcUrl);
-    this.button = Button__factory.connect(buttonAddress, this.provider);
+    this.client = createPublicClient({
+      transport: http(rpcUrl),
+      chain: berachainBepolia,
+    }) as any;
+
+    this.buttonContract = getContract({
+      address: buttonAddress as Address,
+      abi: BUTTON_ABI,
+      client: this.client,
+    }) as any;
+
     this.logger.log(`Connected to button contract at: ${buttonAddress}`);
 
     // Start the indexer
-    const startBlock = await this.getLastProcessedBlock() + 1;
+    const state = await this.prisma.indexerState.findUnique({ 
+      where: { key: 'lastProcessedBlock' } 
+    });
+    const startBlock = state ? parseInt(state.value, 10) : 5000000;
     this.logger.log(`Starting indexer from block ${startBlock}`);
     await this.indexButtonPresses(startBlock);
   }
 
   async getLastProcessedBlock(): Promise<number> {
-    const state = await this.prisma.indexerState.findUnique({ where: { key: 'lastProcessedBlock' } });
-    const block = state ? parseInt(state.value, 10) : 0;
+    const state = await this.prisma.indexerState.findUnique({ 
+      where: { key: 'lastProcessedBlock' } 
+    });
+    const block = state ? parseInt(state.value, 10) : 5000000;
     this.logger.debug(`Last processed block: ${block}`);
     return block;
   }
@@ -55,61 +81,58 @@ export class IndexerService implements OnModuleInit {
   }
 
   async indexButtonPresses(startBlock: number) {
-    let latestBlock = await this.provider.getBlockNumber();
-    let toBlock = latestBlock - FINALITY;
-    let fromBlock = startBlock;
+    try {
+      const latestBlock = await this.client.getBlockNumber();
+      const fromBlock = BigInt(startBlock);
+      const toBlock = latestBlock - BigInt(FINALITY);
 
-    this.logger.log(`Indexing from block ${fromBlock} to ${toBlock} (latest: ${latestBlock})`);
+      this.logger.log(`Indexing from block ${fromBlock} to ${toBlock} (latest: ${latestBlock})`);
 
-    while (fromBlock <= toBlock) {
-      const endBlock = Math.min(fromBlock + CHUNK_SIZE - 1, toBlock);
-      this.logger.log(`Processing blocks ${fromBlock} to ${endBlock}...`);
+      const chunkSize = BigInt(this.BATCH_SIZE);
+      let currentBlock = fromBlock;
 
-      try {
-      const events = await this.button.queryFilter(
-        this.button.filters.ButtonPressed(),
-        fromBlock,
-        endBlock
-      );
+      while (currentBlock < toBlock) {
+        const endBlock = currentBlock + chunkSize > toBlock ? toBlock : currentBlock + chunkSize;
+        this.logger.log(`Processing blocks ${currentBlock} to ${endBlock}...`);
 
-        this.logger.log(`Found ${events.length} button press events in blocks ${fromBlock}-${endBlock}`);
+        const logs = await this.client.getLogs({
+          address: this.buttonContract.address,
+          event: parseAbiItem('event ButtonPressed(address indexed presser)'),
+          fromBlock: currentBlock,
+          toBlock: endBlock,
+        });
 
-      await this.prisma.$transaction(async (tx: PrismaService) => {
-        for (const event of events) {
-          const { user, timestamp } = event.args;
-            this.logger.debug(`Processing button press from ${user} at block ${event.blockNumber}`);
-            
-          await tx.buttonPress.upsert({
-            where: { txHash: event.transactionHash },
-            update: {},
-            create: {
-              address: user,
-              timestamp: new Date(Number(timestamp) * 1000),
-              blockNumber: event.blockNumber,
-              txHash: event.transactionHash,
+        if (logs.length === 0) {
+          this.logger.log(`[ButtonPress] No events found in blocks ${currentBlock} to ${endBlock}`);
+        }
+
+        for (const log of logs) {
+          const { presser } = log.args;
+          this.logger.log(`[ButtonPress] Block: ${log.blockNumber}, Tx: ${log.transactionHash}, Presser: ${presser}`);
+
+          // Fetch the block to get the timestamp
+          const block = await this.client.getBlock({ blockHash: log.blockHash });
+
+          await this.prisma.buttonPress.create({
+            data: {
+              address: presser,
+              timestamp: new Date(Number(block.timestamp) * 1000),
+              blockNumber: Number(log.blockNumber),
+              txHash: log.transactionHash,
             },
           });
         }
-          
-        await tx.indexerState.upsert({
-          where: { key: 'lastProcessedBlock' },
-          update: { value: String(endBlock) },
-          create: { key: 'lastProcessedBlock', value: String(endBlock) },
-        });
-      });
 
-        this.logger.log(`Successfully processed blocks ${fromBlock}-${endBlock}`);
-      } catch (error) {
-        this.logger.error(`Error processing blocks ${fromBlock}-${endBlock}: ${error.message}`);
-        throw error;
+        await this.setLastProcessedBlock(Number(endBlock));
+        currentBlock = endBlock + 1n;
+        await setTimeout(1000); // 1 second delay
       }
-
-      fromBlock = endBlock + 1;
+    } catch (error) {
+      this.logger.error(`Error processing blocks: ${error}`);
+      throw error;
     }
-    this.logger.log('Indexer caught up to chain head.');
   }
 
-  // Method to get button presses within a time window
   async getButtonPressesInTimeWindow(startTime: Date, endTime: Date) {
     this.logger.debug(`Fetching button presses from ${startTime} to ${endTime}`);
     return this.prisma.buttonPress.findMany({
@@ -122,7 +145,6 @@ export class IndexerService implements OnModuleInit {
     });
   }
 
-  // Method to get button press counts by address within a time window
   async getButtonPressCountsByAddress(startTime: Date, endTime: Date) {
     this.logger.debug(`Fetching button press counts from ${startTime} to ${endTime}`);
     const presses = await this.prisma.buttonPress.groupBy({
@@ -138,15 +160,15 @@ export class IndexerService implements OnModuleInit {
       },
     });
 
-    return presses.map((press: { address: string; _count: { address: number } }) => ({
+    return presses.map((press) => ({
       address: press.address,
       count: press._count.address,
     }));
   }
 
   async getCurrentBlock(): Promise<number> {
-    const block = await this.provider.getBlockNumber();
+    const block = await this.client.getBlockNumber();
     this.logger.debug(`Current block: ${block}`);
-    return block;
+    return Number(block);
   }
 } 

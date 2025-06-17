@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  // output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -15,29 +8,28 @@ datasource db {
 }
 
 model ButtonPress {
-  id        String   @id @default(cuid())
-  address   String   // The EVM address that pressed the button
-  timestamp DateTime @default(now())
-  blockNumber Int    // The block number when the press occurred
-  txHash    String   @unique // The transaction hash
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  address     String
+  timestamp   DateTime @default(now())
+  blockNumber Int
+  txHash      String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([address])
   @@index([timestamp])
   @@index([blockNumber])
 }
 
-// This model will store the merkle tree data for reward distribution
 model RewardDistribution {
-  id            String   @id @default(cuid())
-  startTime     DateTime
-  endTime       DateTime
-  totalRewards  String   // Amount of rewards to distribute
-  merkleRoot    String   // The merkle root hash
-  merkleProofs  Json     // The merkle proofs for each address
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(cuid())
+  startTime    DateTime
+  endTime      DateTime
+  totalRewards String
+  merkleRoot   String
+  merkleProofs Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([startTime])
   @@index([endTime])
@@ -49,28 +41,27 @@ model IndexerState {
 }
 
 model MerkleClaim {
-  id              String   @id @default(cuid())
-  merkleRoot      String   @unique
-  start           DateTime
-  end             DateTime
-  prizeAmount     String   // in wei
+  id               String              @id @default(cuid())
+  merkleRoot       String              @unique
+  start            DateTime
+  end              DateTime
+  prizeAmount      String
   participantCount Int
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  participants    MerkleParticipant[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  claimId          String              @unique
+  participants     MerkleParticipant[]
 }
 
 model MerkleParticipant {
-  id           String   @id @default(cuid())
+  id           String      @id @default(cuid())
   claimId      String
   address      String
-  rewardAmount String   // in wei
+  rewardAmount String
   proof        Json
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  claim        MerkleClaim @relation(fields: [claimId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  claim        MerkleClaim @relation(fields: [claimId], references: [claimId])
 
   @@unique([claimId, address])
 }
