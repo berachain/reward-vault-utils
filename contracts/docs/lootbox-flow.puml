@@ -1,0 +1,79 @@
+@startuml LootBox Implementation
+
+' Style
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam defaultFontName Arial
+skinparam ArrowColor #2C3E50
+skinparam ActorBorderColor #2C3E50
+skinparam ActorBackgroundColor #ECF0F1
+skinparam DatabaseBorderColor #2C3E50
+skinparam DatabaseBackgroundColor #ECF0F1
+skinparam componentStyle rectangle
+skinparam nodesep 80
+skinparam ranksep 100
+
+actor User
+
+rectangle "LootBox (ERC-1155)" as LB {
+    frame "Open Immediately" as IMMEDIATE
+    frame "Open Later (No Trading)" as LATER_NO_TRADE
+    frame "Open Later (With Trading)" as LATER_TRADE
+}
+
+rectangle "Entropy Contract" as ENTROPY
+rectangle "Rarity Logic" as RARITY
+rectangle "BGT Pool" as BGTPOOL
+
+' Flows
+User --> LB: Mint Loot Box
+
+' Open Immediately
+User --> IMMEDIATE: Open
+IMMEDIATE --> ENTROPY: Request randomness
+ENTROPY --> RARITY: Roll for rarity
+RARITY --> IMMEDIATE: Mint rarity or none
+IMMEDIATE --> BGTPOOL: Redeem for BGT
+
+' Open Later (No Trading)
+User --> LATER_NO_TRADE: Hold Loot Box
+LATER_NO_TRADE --> ENTROPY: Open (invoke randomness)
+ENTROPY --> RARITY: Roll for rarity
+RARITY --> LATER_NO_TRADE: Mint rarity or none
+LATER_NO_TRADE --> BGTPOOL: Redeem for BGT
+
+' Open Later (With Trading)
+User --> LATER_TRADE: Hold/Trade Loot Box
+LATER_TRADE --> User: Transfer (trade)
+LATER_TRADE --> ENTROPY: Open (invoke randomness)
+ENTROPY --> RARITY: Roll for rarity
+RARITY --> LATER_TRADE: Mint rarity or none
+LATER_TRADE --> BGTPOOL: Redeem for BGT
+
+' Notes
+note right of LB
+  Three versions:
+  - Open immediately
+  - Open later (no trading)
+  - Open later (with trading)
+end note
+
+note right of RARITY
+  Rolls correspond to loot box rarities
+  Specific rarity minted based on roll or none
+end note
+
+note right of BGTPOOL
+  Redemption:
+  - Redeems bounded ranges of available BGT
+  - On opening
+end note
+
+note bottom of LB
+  Caveats:
+  - Rarities must be against current BGT allocation
+  - Expected value on deferred claims can change
+    as people open boxes
+end note
+
+@enduml 

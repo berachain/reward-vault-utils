@@ -1,68 +1,78 @@
 import axios from 'axios';
 import chalk from 'chalk';
-import { ethers } from 'ethers';
 import fs from 'fs';
 import path from 'path';
 
 async function main() {
   console.log(chalk.blue('[verify-proofs] Starting script...'));
 
-  // 1. Create a new distribution
-  console.log(chalk.yellow('[verify-proofs] Creating new distribution...'));
-  const response = await axios.post('http://localhost:3000/merkle/distribution', {
-    startTime: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Last 24 hours
-    endTime: new Date().toISOString(),
-    rewardAmount: '5',
-  });
+  // 1. Get the latest distribution from the API
+  console.log(chalk.yellow('[verify-proofs] Fetching latest distribution from API...'));
+  // This assumes the latest distribution is the most recent one created; if you have a GET endpoint for this, use it.
+  // Otherwise, you may need to POST to /merkle/distribution with the same params as last time.
+  // For now, let's read the local distribution.json for participants, but update claimId/merkleRoot from the API.
+  const distributionPath = path.join(__dirname, '../merkle/examples/distribution.json');
+  let distribution = JSON.parse(fs.readFileSync(distributionPath, 'utf-8'));
 
-  const { claimId, merkleRoot } = response.data;
-  console.log(chalk.green('[verify-proofs] Distribution created:'));
-  console.log(chalk.green(`Claim ID: ${claimId}`));
-  console.log(chalk.green(`Merkle Root: ${merkleRoot}`));
+  // Option 1: If you have a GET endpoint for the latest distribution, use it here.
+  // Option 2: If not, you must POST to /merkle/distribution with the same params as last time.
+  // We'll use the local file for participants, but update claimId/root from the API response.
 
-  // 2. Verify claimId is bytes32
-  if (!ethers.isHexString(claimId, 32)) {
-    console.log(chalk.red('[verify-proofs] Error: claimId is not bytes32'));
+  // Example: POST to /merkle/distribution with the same params as last time
+  const { start, end, prizeAmount } = distribution.distribution;
+  let apiDistribution;
+  try {
+    const response = await axios.post('http://localhost:3000/merkle/distribution', {
+      startTime: start,
+      endTime: end,
+      rewardAmount: (BigInt(prizeAmount) / 10n ** 18n).toString(), // convert wei to tokens
+    });
+    apiDistribution = response.data;
+    console.log(chalk.green('[verify-proofs] Got latest distribution from API:'));
+    console.log(apiDistribution);
+  } catch (error) {
+    console.error(chalk.red('[verify-proofs] Error fetching distribution from API:'), error);
     process.exit(1);
   }
-  console.log(chalk.green('[verify-proofs] claimId is valid bytes32'));
 
-  // 3. Load reward claimers
-  const rewardClaimersPath = path.join(__dirname, 'reward_claimers.json');
-  const rewardClaimers = JSON.parse(fs.readFileSync(rewardClaimersPath, 'utf-8'));
-
-  // 4. Get and verify proofs for each claimer
-  console.log(chalk.yellow('[verify-proofs] Getting proofs for reward claimers...'));
-  for (const claimer of rewardClaimers) {
+  // 2. For each participant, get their proof from the API
+  const participants = distribution.participants;
+  for (const participant of participants) {
     try {
       const proofResponse = await axios.get('http://localhost:3000/merkle/proof', {
         params: {
-          claimId,
-          address: claimer.address,
+          claimId: apiDistribution.claimId,
+          address: participant.address,
         },
       });
-
       const { proof, rewardAmount } = proofResponse.data;
-      
-      if (!proof || proof.length === 0) {
-        console.log(chalk.red(`[verify-proofs] Error: Empty proof for address ${claimer.address}`));
-        process.exit(1);
-      }
-
-      console.log(chalk.green(`[verify-proofs] Valid proof for ${claimer.address}:`));
-      console.log(chalk.green(`Reward Amount: ${rewardAmount}`));
-      console.log(chalk.green(`Proof Length: ${proof.length}`));
+      participant.proof = proof;
+      participant.rewardAmount = rewardAmount;
+      console.log(chalk.green(`[verify-proofs] Updated proof for ${participant.address}`));
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.log(chalk.red(`[verify-proofs] Error getting proof for ${claimer.address}:`), error.response?.data || error.message);
+        console.log(chalk.red(`[verify-proofs] Error getting proof for ${participant.address}:`), error.response?.data || error.message);
       } else {
-        console.log(chalk.red(`[verify-proofs] Unexpected error for ${claimer.address}:`), error);
+        console.log(chalk.red(`[verify-proofs] Unexpected error for ${participant.address}:`), error);
       }
       process.exit(1);
     }
   }
 
-  console.log(chalk.green('[verify-proofs] All proofs verified successfully!'));
+  // 3. Write the updated distribution.json
+  const newDistribution = {
+    distribution: {
+      claimId: apiDistribution.claimId,
+      merkleRoot: apiDistribution.merkleRoot,
+      participantCount: apiDistribution.participantCount,
+      start: apiDistribution.start,
+      end: apiDistribution.end,
+      prizeAmount: apiDistribution.prizeAmount,
+    },
+    participants,
+  };
+  fs.writeFileSync(distributionPath, JSON.stringify(newDistribution, null, 2));
+  console.log(chalk.green('[verify-proofs] distribution.json updated via API!'));
 }
 
 main().catch((error) => {

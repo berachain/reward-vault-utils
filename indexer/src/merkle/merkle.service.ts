@@ -3,7 +3,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { randomBytes } from 'crypto';
 import { bytesToHex } from 'viem';
 import { Prisma } from '@prisma/client';
-import { keccak256, concatBytes, encodeAbiParameters, parseUnits, ByteArray, hexToBytes } from 'viem';
+import { keccak256, concat, toBytes, pad, parseUnits } from 'viem';
+import { encodePacked } from 'viem';
 
 export interface ButtonPress {
   address: string;
@@ -17,14 +18,18 @@ export class MerkleService {
   constructor(private prisma: PrismaService) {}
 
   // Generate a Merkle claim and store all proofs and metadata
-  async generateMerkleClaim(start: Date, end: Date, totalReward: string) {
+  async generateMerkleClaim(start: Date | string, end: Date | string, totalReward: string) {
+    // Parse ISO strings to Date objects if needed
+    const startDate = start instanceof Date ? start : new Date(start);
+    const endDate = end instanceof Date ? end : new Date(end);
+
     // 1. Get all button presses grouped by address
     const presses = await this.prisma.buttonPress.groupBy({
       by: ['address'],
       where: {
         timestamp: {
-          gte: start,
-          lte: end,
+          gte: startDate,
+          lte: endDate,
         },
       },
       _count: {
@@ -52,12 +57,15 @@ export class MerkleService {
         index: i,
       };
     });
+    console.log('[merkle.service] Participants for this claim:');
+    participants.forEach((p, i) => {
+      console.log(`  [${i}] address: ${p.address}, count: ${p.count}, reward: ${p.reward}`);
+    });
 
     // 5. Adjust for rounding error (ensure sum == totalRewardWei)
     let distributed = participants.reduce((sum: bigint, p: { reward: string }) => sum + BigInt(p.reward), 0n);
     let diff = BigInt(totalRewardWei) - distributed;
     if (diff !== 0n) {
-      // Add/subtract the difference to the first participant
       participants[0].reward = (BigInt(participants[0].reward) + diff).toString();
     }
 
@@ -69,35 +77,57 @@ export class MerkleService {
       throw new Error('Generated claimId is not bytes32: ' + claimId);
     }
 
-    // 7. Build Merkle tree: leaf = keccak256(abi.encode(claimId, address, rewardAmount))
-    const leaves = participants.map((p: { address: string; reward: string }) =>
-      keccak256(encodeAbiParameters(
-        [
-          { type: 'bytes32' },
-          { type: 'address' },
-          { type: 'uint256' }
-        ],
-        [claimId, p.address as `0x${string}`, BigInt(p.reward)]
-      ))
-    );
-    const tree = this.generateMerkleTree(leaves);
-    const merkleRoot = tree.root;
+    // 7. Build Merkle tree: leaf = keccak256(abi.encodePacked(claimId, address, token, rewardAmount))
+    const FBGT = '0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece';
+    
+    // Build leaves exactly as Solmate expects them
+    const leaves = participants.map((p: { address: string; reward: string }) => {
+      // Create the packed data exactly as Solidity would with abi.encodePacked
+      const packed = Buffer.concat([
+        Buffer.from(claimId.slice(2), 'hex'), // bytes32
+        Buffer.from(p.address.slice(2), 'hex'), // address
+        Buffer.from(FBGT.slice(2), 'hex'), // address
+        Buffer.from(BigInt(p.reward).toString(16).padStart(64, '0'), 'hex'), // uint256
+      ]);
+      // Hash the packed data to create the leaf
+      const leaf = keccak256(packed);
+      console.log(`[merkle.service] Leaf for ${p.address}: ${leaf}`);
+      return leaf;
+    });
+
+    // Create Merkle tree with keccak256 for both leaves and internal nodes
+    const { MerkleTree } = require('merkletreejs');
+    const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
+    const merkleRoot = '0x' + tree.getRoot().toString('hex');
+    console.log('[merkle.service] Computed Merkle root:', merkleRoot);
 
     // 8. Store MerkleClaim and MerkleParticipant records
     await this.prisma.$transaction(async (tx: PrismaService) => {
       const claimData: Prisma.MerkleClaimCreateInput = {
         claimId,
         merkleRoot,
-        start,
-        end,
+        start: startDate,
+        end: endDate,
         prizeAmount: totalRewardWei,
         participantCount: participants.length,
         participants: {
-          create: participants.map((p: { address: string; reward: string }, i: number) => ({
-            address: p.address,
-            rewardAmount: p.reward,
-            proof: this.generateProof(leaves, i, tree.layers),
-          })),
+          create: participants.map((p: { address: string; reward: string }, i: number) => {
+            // Get proof for this leaf by index and ensure it's in the format Solmate expects
+            const proof = tree.getProof(leaves[i]).map((x: any) => {
+              const proofHex = '0x' + x.data.toString('hex');
+              // Ensure the proof is exactly 32 bytes (64 hex chars + 0x)
+              if (proofHex.length !== 66) {
+                throw new Error(`Invalid proof length for ${p.address}: ${proofHex.length}`);
+              }
+              return proofHex;
+            });
+            console.log(`[merkle.service] Proof for ${p.address}:`, proof);
+            return {
+              address: p.address,
+              rewardAmount: p.reward,
+              proof,
+            };
+          }),
         },
       };
       await tx.merkleClaim.create({ data: claimData });
@@ -107,54 +137,41 @@ export class MerkleService {
       claimId,
       merkleRoot,
       participantCount: participants.length,
-      start,
-      end,
+      start: startDate,
+      end: endDate,
       prizeAmount: totalRewardWei,
     };
   }
 
   // Build a Merkle tree and return root and all layers
-  public generateMerkleTree(leaves: string[]) {
-    let layers: string[][] = [leaves];
-    let nodes = leaves;
-    while (nodes.length > 1) {
-      const newNodes = [];
-      for (let i = 0; i < nodes.length; i += 2) {
-        if (i + 1 === nodes.length) {
-          newNodes.push(nodes[i]);
-        } else {
-          newNodes.push(
-            keccak256(concatBytes([hexToBytes(nodes[i] as `0x${string}`), hexToBytes(nodes[i + 1] as `0x${string}`)]))
-          );
-        }
-      }
-      layers.push(newNodes);
-      nodes = newNodes;
-    }
+  public generateMerkleTree(leaves: Buffer[]) {
+    // Use hashLeaves: true and sortPairs: true
+    const { MerkleTree } = require('merkletreejs');
+    const keccak256 = require('keccak256');
+    const tree = new MerkleTree(leaves, keccak256, { hashLeaves: true, sortPairs: true });
+    // Get all layers for proof generation
+    let layers = tree.getLayers().map((layer: Buffer[]) => layer.map((n: Buffer) => '0x' + n.toString('hex')));
     return {
-      root: nodes[0],
-      leaves,
+      root: '0x' + tree.getRoot().toString('hex'),
+      leaves: leaves.map(l => '0x' + l.toString('hex')),
       layers,
+      tree,
     };
   }
 
   // Generate a Merkle proof for a leaf at a given index
-  public generateProof(leaves: string[], index: number, layers: string[][]): string[] {
-    let proof: string[] = [];
-    let idx = index;
-    for (let i = 0; i < layers.length - 1; i++) {
-      const layer = layers[i];
-      const pairIndex = idx % 2 === 0 ? idx + 1 : idx - 1;
-      if (pairIndex < layer.length) {
-        proof.push(layer[pairIndex]);
-      }
-      idx = Math.floor(idx / 2);
-    }
+  public generateProof(leaves: Buffer[], index: number, layers: string[][]): string[] {
+    const { MerkleTree } = require('merkletreejs');
+    const keccak256 = require('keccak256');
+    const tree = new MerkleTree(leaves, keccak256, { hashLeaves: true, sortPairs: true });
+    const proof = tree.getProof(leaves[index]).map((p: { data: Buffer }) => '0x' + p.data.toString('hex'));
+    console.log(`[merkle.service] generateProof for leaf[${index}]:`, leaves[index], 'proof:', proof);
     return proof;
   }
 
   // Retrieve a user's proof for a given claim/root and address
   async getUserProof(claimId: string, address: string) {
+    console.log(`[merkle.service] getUserProof called with claimId=${claimId}, address=${address}`);
     const participant = await this.prisma.merkleParticipant.findUnique({
       where: {
         claimId_address: {
@@ -168,9 +185,11 @@ export class MerkleService {
     });
 
     if (!participant) {
+      console.log(`[merkle.service] No proof found for address ${address} and claimId ${claimId}`);
       throw new Error('No proof found for this address');
     }
 
+    console.log(`[merkle.service] Returning proof for address ${address}:`, participant.proof);
     return {
       address: participant.address,
       rewardAmount: participant.rewardAmount,

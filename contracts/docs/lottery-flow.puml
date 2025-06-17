@@ -1,0 +1,67 @@
+@startuml Lottery Implementation
+
+' Style
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam defaultFontName Arial
+skinparam ArrowColor #2C3E50
+skinparam ActorBorderColor #2C3E50
+skinparam ActorBackgroundColor #ECF0F1
+skinparam DatabaseBorderColor #2C3E50
+skinparam DatabaseBackgroundColor #ECF0F1
+skinparam componentStyle rectangle
+skinparam nodesep 80
+skinparam ranksep 100
+
+actor User
+
+rectangle "Prediction Market / Trigger" as TRIGGER
+rectangle "Lottery Contract" as LOTTERY {
+    frame "Full Value Lottery" as FULL
+    frame "Partial Value Lottery" as PARTIAL
+    frame "Hybrid Lottery" as HYBRID
+}
+rectangle "Entropy Contract" as ENTROPY
+rectangle "Reward Vault (BGT)" as VAULT
+
+' Flows
+User --> TRIGGER: On-chain action (e.g. bet)
+TRIGGER --> LOTTERY: Invoke lottery
+LOTTERY --> ENTROPY: Request entropy (roll 0-100)
+ENTROPY --> LOTTERY: Return roll
+
+' Full Value
+FULL --> VAULT: Jackpot (roll >= 99)
+FULL --> VAULT: Win (roll > 90)
+VAULT --> User: Payout (full or %)
+
+' Partial Value
+PARTIAL --> VAULT: Win (roll > 90)
+VAULT --> User: Payout (%)
+
+' Hybrid
+HYBRID --> VAULT: Jackpot (roll >= 99)
+HYBRID --> VAULT: Win (roll > 90)
+VAULT --> User: Payout (full or %)
+
+' Notes
+note right of LOTTERY
+  Implementations:
+  - Full value: winner takes all
+  - Partial value: winner takes %
+  - Hybrid: jackpot = all, win = %
+end note
+
+note right of ENTROPY
+  Roll 0-100:
+  - >90: win
+  - >=99: jackpot
+end note
+
+note right of VAULT
+  Payouts:
+  - Win: % of BGT in vault
+  - Jackpot: 100% of BGT in vault
+end note
+
+@enduml 

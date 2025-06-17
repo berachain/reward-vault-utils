@@ -1,0 +1,82 @@
+@startuml RewardVaultManagerMerkle Flow
+
+' Style
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam defaultFontName Arial
+skinparam ArrowColor #2C3E50
+skinparam ActorBorderColor #2C3E50
+skinparam ActorBackgroundColor #ECF0F1
+skinparam DatabaseBorderColor #2C3E50
+skinparam DatabaseBackgroundColor #ECF0F1
+
+' Layout
+skinparam componentStyle rectangle
+skinparam nodesep 80
+skinparam ranksep 100
+
+' Actors
+actor Owner as "Owner"
+actor User as "User"
+
+' Components
+rectangle "BGT Token" as BGT
+rectangle "FBGT Token" as FBGT {
+    database "Balances" as BAL
+}
+
+rectangle "RewardVaultManagerMerkle" as RVM {
+    database "Token State" as TOKEN_STATE {
+        frame "Minted" as MINTED
+        frame "Allocated" as ALLOCATED
+        frame "Claimed" as CLAIMED
+    }
+    database "Allocations" as ALLOC {
+        frame "Claim ID" as CLAIM_ID
+        frame "Merkle Root" as MERKLE_ROOT
+    }
+}
+
+rectangle "API Service" as API {
+    database "Merkle Tree" as MT {
+        frame "Leaves" as LEAVES
+        frame "Proofs" as PROOFS
+    }
+}
+
+' Layout
+Owner -[hidden]d-> User
+BGT -[hidden]d-> FBGT
+FBGT -[hidden]d-> RVM
+RVM -[hidden]d-> API
+
+' Flows
+Owner --> BGT: mintLiquidBGT(amount)
+BGT --> FBGT: Mint FBGT
+
+Owner --> API: Request allocation generation
+API --> Owner: Return merkleRoot & claimId
+
+Owner --> RVM: createAllocation(merkleRoot, amount, token)
+
+User --> API: Request claim proof
+API --> User: Return merkle proof
+
+User --> RVM: claim(merkleRoot, claimId, token, amount, proof)
+RVM --> FBGT: transfer(user, amount)
+
+' State
+note right of TOKEN_STATE
+  Per token tracking:
+  - Minted: Total minted to manager
+  - Allocated: Total allocated for claims
+  - Claimed: Total claimed by users
+end note
+
+note right of ALLOC
+  Per allocation:
+  - Claim ID: Unique identifier
+  - Merkle Root: For verification
+end note
+
+@enduml 

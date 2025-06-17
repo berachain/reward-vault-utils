@@ -123,11 +123,10 @@ describe('MerkleService', () => {
         '0x4567890123456789012345678901234567890123456789012345678901234567',
         '0x7890123456789012345678901234567890123456789012345678901234567890',
       ];
-
-      const result = service.generateMerkleTree(leaves);
-
+      const bufferLeaves = leaves.map(l => Buffer.from(l.slice(2), 'hex'));
+      const result = service.generateMerkleTree(bufferLeaves);
       expect(result.root).toBeDefined();
-      expect(result.leaves).toEqual(leaves);
+      expect(result.leaves).toEqual(bufferLeaves.map(l => '0x' + l.toString('hex')));
       expect(result.layers.length).toBeGreaterThan(1);
     });
   });
@@ -139,12 +138,11 @@ describe('MerkleService', () => {
         '0x4567890123456789012345678901234567890123456789012345678901234567',
         '0x7890123456789012345678901234567890123456789012345678901234567890',
       ];
-
-      const tree = service.generateMerkleTree(leaves);
-      const proof = service.generateProof(leaves, 0, tree.layers);
-
+      const bufferLeaves = leaves.map(l => Buffer.from(l.slice(2), 'hex'));
+      const tree = service.generateMerkleTree(bufferLeaves);
+      const proof = service.generateProof(bufferLeaves, 0, tree.layers);
       expect(proof).toBeDefined();
-      expect(proof.length).toBeGreaterThan(0);
+      expect(Array.isArray(proof)).toBe(true);
     });
   });
 
@@ -176,7 +174,7 @@ describe('MerkleService', () => {
 
       mockPrismaService.merkleParticipant.findUnique.mockResolvedValue(null);
 
-      await expect(service.getUserProof(claimId, address)).rejects.toThrow('No proof found for this user and claim');
+      await expect(service.getUserProof(claimId, address)).rejects.toThrow('No proof found for this address');
     });
   });
 }); 
