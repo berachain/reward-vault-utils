@@ -1,27 +1,34 @@
-# Competition Vault
+# Reward Vault Utilities
 
-A decentralized competition rewards system integrated with Berachain's proof of liquidity mechanism. This project enables fair and transparent distribution of rewards based on user participation and liquidity provision.
+A comprehensive suite of tools and utilities for building reward distribution systems on Berachain. This project provides extensible base contracts and example implementations for various reward distribution strategies.
 
 ## Overview
 
-The Competition Vault system consists of two main components:
+The Reward Vault Utilities system consists of two main components:
 
-1. **Smart Contracts**: A set of Solidity contracts that handle competition logic, reward distribution, and integration with Berachain's proof of liquidity.
-2. **Indexer**: A NestJS-based service that tracks competition events, maintains user statistics, and provides APIs for frontend integration.
+1. **Smart Contracts**: A collection of base contracts and example implementations for reward distribution, including:
+   - Extensible reward vault manager base contract
+   - Merkle-based distribution implementation
+   - Example implementations for various use cases
+2. **Indexer**: A NestJS-based service that provides event tracking, merkle tree management, and APIs for frontend integration.
 
-## Key Features
+## Architecture
 
-- **Proof of Liquidity Integration**: Leverages Berachain's proof of liquidity mechanism to ensure fair reward distribution
-- **Competition Management**: Create and manage competitions with customizable parameters
-- **Reward Distribution**: Automated and transparent reward distribution based on participation and liquidity metrics
-- **Event Indexing**: Real-time tracking of competition events and user interactions
-- **API Integration**: RESTful APIs for frontend integration and data querying
+The system is built around an extensible reward vault manager that can be customized for different distribution strategies:
+
+1. **Base Reward Vault Manager**: Provides core functionality for reward management and distribution
+2. **Merkle Implementation**: Example extension that uses merkle proofs for gas-efficient distribution
+3. **Custom Extensions**: Developers can create their own extensions for specific distribution needs
 
 ## Project Structure
 
 ```
-competition-vault/
-├── contracts/         # Smart contracts for competition and reward logic
+reward-vault-utils/
+├── contracts/         # Smart contracts for reward distribution
+│   ├── src/
+│   │   ├── core/     # Base reward vault manager and core contracts
+│   │   ├── merkle/   # Merkle-based distribution implementation
+│   │   └── examples/ # Example implementations and usage
 └── indexer/          # NestJS service for event indexing and API endpoints
 ```
 

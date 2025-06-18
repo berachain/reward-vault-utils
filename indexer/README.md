@@ -1,22 +1,23 @@
-# Competition Vault Indexer
+# Reward Vault Indexer
 
-A NestJS-based service that tracks competition events, maintains user statistics, and provides APIs for frontend integration.
+A NestJS-based service that provides event tracking, merkle tree management, and APIs for reward distribution systems.
 
 ## Overview
 
 The indexer service:
-- Tracks competition events from the blockchain
-- Maintains a database of user participation
-- Generates merkle trees for reward distribution
+- Tracks reward vault events from the blockchain
+- Manages merkle tree generation and verification
+- Maintains a database of reward allocations and claims
 - Provides RESTful APIs for frontend integration
 
 ## Features
 
 - Real-time event indexing
 - PostgreSQL database with Prisma ORM
-- RESTful API endpoints
+- Merkle tree generation and verification
+- RESTful API endpoints with Swagger documentation
 - Docker support for easy deployment
-- Integration with Berachain's proof of liquidity
+- Integration with Berachain's reward vault system
 
 ## Development Setup
 
@@ -64,31 +65,46 @@ docker compose up --build
 docker compose logs -f
 ```
 
+## API Documentation
+
+The API is documented using Swagger UI. Once the service is running, you can access the API documentation at:
+
+```
+http://localhost:3000/api
+```
+
+The documentation includes:
+- Detailed endpoint descriptions
+- Request/response schemas
+- Interactive API testing interface
+- Authentication requirements (if any)
+
 ## API Endpoints
 
-### Competition Endpoints
+### Reward Vault Endpoints
 
-- `GET /competitions`: List all competitions
-- `GET /competitions/:id`: Get competition details
-- `POST /competitions`: Create new competition
+- `GET /allocations`: List all reward allocations
+- `GET /allocations/:id`: Get allocation details
+- `POST /allocations`: Create new allocation
 
-### User Endpoints
+### Merkle Endpoints
 
-- `GET /users/:address`: Get user statistics
-- `GET /users/:address/participations`: Get user's competition participations
+- `GET /merkle/:root`: Get merkle tree details
+- `GET /merkle/:root/proof/:address`: Get merkle proof for address
+- `POST /merkle/verify`: Verify merkle proof
 
-### Reward Endpoints
+### Claim Endpoints
 
-- `GET /rewards/:competitionId`: Get competition rewards
-- `POST /rewards/:competitionId/claim`: Claim rewards
+- `GET /claims/:allocationId`: Get allocation claims
+- `POST /claims/:allocationId/verify`: Verify claim proof
 
 ## Database Schema
 
 The indexer uses Prisma with PostgreSQL. Key models include:
 
-- `Competition`: Competition details and parameters
-- `ButtonPress`: User participation records
-- `Reward`: Reward distribution records
+- `Allocation`: Reward allocation details and parameters
+- `Claim`: User claim records
+- `MerkleTree`: Merkle tree data and proofs
 
 ## Testing
 
