@@ -1,4 +1,4 @@
-# Reward Vault Tooling
+# Reward Vault Smart Contracts
 
 A comprehensive collection of smart contracts, tools, and utilities for building reward distribution systems on Berachain.
 
@@ -6,7 +6,7 @@ A comprehensive collection of smart contracts, tools, and utilities for building
 
 This repository provides a suite of tools for developers building reward distribution systems, with a focus on:
 - Gas-efficient reward distribution
-- Competition management
+- Extensible reward vault management
 - Merkle-based reward verification
 - Example implementations
 - Integration with Berachain's reward vault system
@@ -15,13 +15,13 @@ This repository provides a suite of tools for developers building reward distrib
 
 ### Core Contracts (`src/core/`)
 Core contracts that form the foundation of the reward vault system:
-- `CompetitionManager`: Main contract for competition and token management
-- Handles competition token creation, reward vault registration, and basic competition functionality
+- `RewardVaultManager`: Base contract for reward management and distribution
+- Provides core functionality for reward tracking, allocation, and distribution
 
 ### Merkle-based Distribution (`src/merkle/`)
 Contracts implementing gas-efficient reward distribution using merkle proofs:
-- `CompetitionManagerMerkle`: Extends CompetitionManager with merkle-based reward distribution
-- Features merkle tree verification, gas-efficient claims, and competition reward allocation
+- `RewardVaultManagerMerkle`: Extends RewardVaultManager with merkle-based distribution
+- Features merkle tree verification, gas-efficient claims, and reward allocation
 
 ### Interfaces (`src/interfaces/`)
 Standard interfaces for system integration:
@@ -30,8 +30,8 @@ Standard interfaces for system integration:
 
 ### Examples (`src/examples/`)
 Example contracts and implementations:
-- `Button`: Simple button press tracking example
-- `CompetitionToken`: Example ERC20 token implementation for competition staking
+- `FBGT`: Example ERC20 token implementation
+- `LiquidBGTMinter`: Example implementation for liquid BGT minting
 
 ## Getting Started
 
