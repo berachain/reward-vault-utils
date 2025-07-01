@@ -37,4 +37,4 @@ contract FBGT is ERC20, Owned {
         _mint(to, amount);
         emit TokensMinted(to, amount);
     }
-} 
+}

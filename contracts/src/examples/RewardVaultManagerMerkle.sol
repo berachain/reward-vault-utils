@@ -72,7 +72,6 @@ contract RewardVaultManagerMerkle is RewardVaultManager {
         rewardVault = vault;
 
         // Mint one token and stake it permanently
-        rewardVaultToken.mint(address(this), 1 ether);
         rewardVaultToken.approve(address(rewardVault), type(uint256).max);
         rewardVault.stake(1 ether);
 

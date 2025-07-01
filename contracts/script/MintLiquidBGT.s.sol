@@ -18,4 +18,4 @@ contract MintLiquidBGT is Script {
 
         vm.stopBroadcast();
     }
-} 
+}
