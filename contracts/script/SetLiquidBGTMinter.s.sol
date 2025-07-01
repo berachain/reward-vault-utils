@@ -20,4 +20,4 @@ contract SetLiquidBGTMinter is Script {
 
         vm.stopBroadcast();
     }
-} 
+}

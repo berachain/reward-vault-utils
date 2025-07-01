@@ -15,7 +15,7 @@ contract LiquidBGTMinter is ILiquidBGTMinter, Owned {
 
     /// @notice The FBGT token contract
     FBGT public immutable fbgt;
-    
+
     /// @notice The BGT token contract on Bepolia
     ERC20 public constant BGT = ERC20(0x656b95E550C07a9ffe548bd4085c72418Ceb1dba);
 
@@ -31,7 +31,7 @@ contract LiquidBGTMinter is ILiquidBGTMinter, Owned {
 
     /// @notice Error thrown when a zero address is provided
     error ZeroAddress();
-    
+
     /// @notice Error thrown when no rewards were claimed
     error NoRewardsClaimed();
 
@@ -59,19 +59,19 @@ contract LiquidBGTMinter is ILiquidBGTMinter, Owned {
 
         // Get initial BGT balance
         uint256 initialBalance = BGT.balanceOf(address(this));
-        
+
         // Claim rewards from vault
         IRewardVault(rewardVault).getReward(user, address(this));
-        
+
         // Calculate amount of BGT received
         uint256 bgtReceived = BGT.balanceOf(address(this)) - initialBalance;
         if (bgtReceived == 0) revert NoRewardsClaimed();
-        
+
         // Mint equivalent amount of FBGT to recipient
         fbgt.mint(recipient, bgtReceived);
-        
+
         emit FBGTMinted(user, recipient, bgtReceived);
-        
+
         return bgtReceived;
     }
-} 
+}

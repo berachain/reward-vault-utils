@@ -17,4 +17,4 @@ contract CheckAllocation is Script {
         console.log("[FBGT] Reward Token:", rewardToken);
         console.log("Expected FBGT:", FBGT);
     }
-} 
+}

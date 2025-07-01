@@ -27,4 +27,4 @@ contract ClaimUser1 is Script {
 
         vm.stopBroadcast();
     }
-} 
+}

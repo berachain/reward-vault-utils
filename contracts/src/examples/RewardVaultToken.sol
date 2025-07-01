@@ -2,58 +2,17 @@
 pragma solidity ^0.8.19;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {Owned} from "@solmate/auth/Owned.sol";
 
 /// @title RewardVaultToken
-/// @notice A token used for staking in reward vaults, with minting and burning capabilities
+/// @notice A token used for staking in reward vaults
 /// @dev This token is designed to be used as the staking token in the RewardVault
-/// @dev Only the owner (RewardVault) can mint and burn tokens
-contract RewardVaultToken is ERC20, Owned {
+contract RewardVaultToken is ERC20 {
     /// @notice Creates a new RewardVaultToken
     /// @param name The name of the token
     /// @param symbol The symbol of the token
     /// @param decimals The number of decimals the token uses
     /// @dev The token uses 18 decimals by default, matching most ERC20 tokens
-    constructor(string memory name, string memory symbol, uint8 decimals)
-        ERC20(name, symbol, decimals)
-        Owned(msg.sender)
-    {}
-
-    /// @notice Mints new tokens to a specified address
-    /// @param to The address to mint tokens to
-    /// @param amount The amount of tokens to mint
-    /// @dev Only the owner (RewardVault) can mint tokens
-    /// @dev This is used when participants stake in a reward vault
-    function mint(address to, uint256 amount) external onlyOwner {
-        _mint(to, amount);
-    }
-
-    /// @notice Burns tokens from a specified address
-    /// @param from The address to burn tokens from
-    /// @param amount The amount of tokens to burn
-    /// @dev Only the owner (RewardVault) can burn tokens
-    /// @dev This is used when participants unstake from a reward vault
-    function burn(address from, uint256 amount) external onlyOwner {
-        _burn(from, amount);
-    }
-
-    /// @notice Overrides transferFrom to allow owner to skip allowance checks
-    function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
-        if (msg.sender == owner) {
-            balanceOf[from] -= amount;
-            unchecked {
-                balanceOf[to] += amount;
-            }
-            emit Transfer(from, to, amount);
-            return true;
-        }
-        uint256 allowed = allowance[from][msg.sender];
-        if (allowed != type(uint256).max) allowance[from][msg.sender] = allowed - amount;
-        balanceOf[from] -= amount;
-        unchecked {
-            balanceOf[to] += amount;
-        }
-        emit Transfer(from, to, amount);
-        return true;
+    constructor(string memory name, string memory symbol, uint8 decimals) ERC20(name, symbol, decimals) {
+        _mint(msg.sender, 1 ether);
     }
 }

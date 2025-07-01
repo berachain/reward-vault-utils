@@ -30,4 +30,4 @@ contract CreateAllocation is Script {
 
         vm.stopBroadcast();
     }
-} 
+}

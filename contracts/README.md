@@ -11,27 +11,32 @@ This repository provides a suite of tools for developers building reward distrib
 - Example implementations
 - Integration with Berachain's reward vault system
 
-## Directory Structure
+## Key Features
 
-### Core Contracts (`src/core/`)
-Core contracts that form the foundation of the reward vault system:
-- `RewardVaultManager`: Base contract for reward management and distribution
-- Provides core functionality for reward tracking, allocation, and distribution
+- **RewardVaultManager**: Base contract for reward management and distribution
+- **Merkle-based Distribution**: Gas-efficient reward distribution using merkle proofs
+- **Liquid BGT Integration**: Support for liquid BGT minting and distribution
+- **Example Implementations**: Complete examples for common use cases
+- **Comprehensive Testing**: Full test coverage for all contracts
 
-### Merkle-based Distribution (`src/merkle/`)
-Contracts implementing gas-efficient reward distribution using merkle proofs:
-- `RewardVaultManagerMerkle`: Extends RewardVaultManager with merkle-based distribution
-- Features merkle tree verification, gas-efficient claims, and reward allocation
+## Alternative Distribution Methods
 
-### Interfaces (`src/interfaces/`)
-Standard interfaces for system integration:
-- `IRewardVault`: Interface for reward vault functionality (staking, distribution, claiming)
-- `IRewardVaultFactory`: Interface for reward vault deployment and configuration
+### Merkl Integration
 
-### Examples (`src/examples/`)
-Example contracts and implementations:
-- `FBGT`: Example ERC20 token implementation
-- `LiquidBGTMinter`: Example implementation for liquid BGT minting
+Instead of using the built-in indexer, you can leverage [Merkl's Encompassing Campaigns](https://docs.merkl.xyz/merkl-mechanisms/campaign-types/encompassing) for reward distribution. This approach provides:
+
+- **No Indexer Required**: Merkl handles the distribution infrastructure
+- **API-Based Rewards**: Provide reward data via JSON endpoints
+- **Automatic Processing**: Merkl processes rewards every 4-8 hours
+- **Frontend Integration**: Built-in campaign visibility and claiming interface
+- **Flexible Updates**: Dynamic reward updates throughout campaign duration
+
+The reward vault contracts can be adapted to work with Merkl's distribution system by:
+- Implementing Merkl-compatible reward endpoints
+- Structuring reward data according to Merkl's JSON format
+- Configuring campaigns with start/end dates and reward/data URLs
+
+*Note: Merkl compatibility updates to the contracts will be implemented in future releases.*
 
 ## Getting Started
 
@@ -52,7 +57,7 @@ forge test
 
 ## Documentation
 
-The documentation website (coming soon) will provide comprehensive guides and examples for each component.
+For detailed documentation and guides, see the main [README.md](../README.md) and [docs/](../docs/) directory.
 
 ## Contributing
 
