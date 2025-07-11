@@ -2,6 +2,7 @@
 pragma solidity ^0.8.19;
 
 import {Script, console} from "forge-std/Script.sol";
+import {LootBox} from "../src/examples/LootBox.sol";
 import {RewardVaultLootBox} from "../src/examples/RewardVaultLootBox.sol";
 
 contract DeployRewardVaultLootBox is Script {
@@ -32,16 +33,22 @@ contract DeployRewardVaultLootBox is Script {
         rarityRewardBips[3] = 500;   // Rare (5%)
         rarityRewardBips[4] = 2000;  // Super Rare (20%)
 
-        RewardVaultLootBox lootBox = new RewardVaultLootBox(
+        // Deploy LootBox first
+        LootBox lootBox = new LootBox(name, symbol, baseURI, address(0)); // controller will be set after deployment
+        console.log("LootBox deployed at:", address(lootBox));
+
+        // Deploy RewardVaultLootBox with LootBox address
+        RewardVaultLootBox lootBoxVault = new RewardVaultLootBox(
             entropyContract,
-            name,
-            symbol,
-            baseURI,
+            address(lootBox),
             rarityProbabilities,
             rarityRewardBips
         );
+        console.log("RewardVaultLootBox deployed at:", address(lootBoxVault));
 
-        console.log("RewardVaultLootBox deployed at:", address(lootBox));
+        // Set the controller of LootBox to RewardVaultLootBox
+        lootBox.setController(address(lootBoxVault));
+        console.log("LootBox controller set to:", lootBox.controller());
 
         vm.stopBroadcast();
     }
