@@ -32,8 +32,9 @@ The Loot Box System has been successfully deployed and tested on Berachain Bepol
 - **View on Berascan**: [Transaction Details](https://testnet.berascan.com/tx/0x6b89557c7505aafa27789d90025d06e79542b7623427510fa2a4746952155ff1)
 
 ### 🏗️ Deployed Contracts
-- **LootBox NFT**: `0xBfE1657Fd43d18fF5023d34a8E5E9218aD040d8B`
-- **RewardVaultLootBox**: `0xce63Ae8857C5608DbbD7089D873Dd681375db714`
+- **LootBox NFT**: `0x891a2e459303DbEb5487a7f437142A70D5912dDe`
+- **RewardVaultLootBox**: `0x8A64bDB68F39238A724A9B7e5538fcC7F35a0465`
+- **Liquid BGT Token**: `0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece` (FBGT)
 
 ### 📚 Documentation
 - [Loot Box System Guide](./docs/lootbox-system.md)

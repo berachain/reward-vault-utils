@@ -219,6 +219,15 @@ contract RewardVaultLootBox is RewardVaultEntropy {
         baseURI = _baseURI;
     }
 
+    /// @notice Set the liquid BGT token for loot box rewards
+    /// @param _liquidBGTToken The address of the liquid BGT token
+    /// @dev This function allows setting the liquid BGT token without requiring a reward vault
+    function setLiquidBGTToken(address _liquidBGTToken) external onlyOwner {
+        if (_liquidBGTToken == address(0)) revert InvalidLiquidBGTToken();
+        liquidBGTToken = _liquidBGTToken;
+        emit LiquidBGTMinterSet(address(0), _liquidBGTToken);
+    }
+
     /// @notice Calculate the actual reward amount at claim time based on current contract balance
     /// @param rarity The rarity of the loot box (unused but kept for interface consistency)
     /// @param rewardBips The reward bips for the loot box

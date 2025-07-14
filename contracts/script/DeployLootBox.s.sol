@@ -50,6 +50,11 @@ contract DeployRewardVaultLootBox is Script {
         lootBox.setController(address(lootBoxVault));
         console.log("LootBox controller set to:", lootBox.controller());
 
+        // Set the liquid BGT token for loot box rewards
+        address fbgtToken = 0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece;
+        lootBoxVault.setLiquidBGTToken(fbgtToken);
+        console.log("Liquid BGT token set to:", fbgtToken);
+
         vm.stopBroadcast();
     }
 } 
