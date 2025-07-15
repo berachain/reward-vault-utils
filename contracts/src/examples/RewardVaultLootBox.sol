@@ -118,7 +118,7 @@ contract RewardVaultLootBox is RewardVaultEntropy {
     function createLootBox(bytes32 userRandomNumber) external payable onlyApprovedCreator returns (uint64 sequenceNumber) {
         // Get the required fee from the entropy contract using default provider
         // trusted: Pyth Entropy contract
-        uint256 requiredFee = entropyContract.getFee(defaultEntropyProvider);
+        uint256 requiredFee = this.getEntropyFee();
         require(msg.value >= requiredFee, "IF"); // Insufficient Fee
         
         // Request entropy with callback data containing the opener's address
@@ -257,18 +257,7 @@ contract RewardVaultLootBox is RewardVaultEntropy {
         return rewardAmount;
     }
 
-    /// @notice Get the current fee required for entropy requests using default provider
-    /// @return The fee amount in wei
-    function getFee() external view returns (uint256) {
-        return this.getEntropyFee();
-    }
 
-    /// @notice Get the current fee required for entropy requests for a specific provider
-    /// @param provider The entropy provider address
-    /// @return The fee amount in wei
-    function getFee(address provider) external view returns (uint256) {
-        return this.getEntropyFee(provider);
-    }
 
     // Add concise custom errors
     error NM(); // Not Minted
