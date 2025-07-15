@@ -5,36 +5,33 @@ import {Script, console} from "forge-std/Script.sol";
 import {RewardVaultLootBox} from "../src/examples/RewardVaultLootBox.sol";
 
 contract CreateLootBox is Script {
+    // RewardVaultLootBox contract address from latest deployment
+    RewardVaultLootBox lootBoxVault = RewardVaultLootBox(0x894D26cf75816D137c62667613d0Ea0d8a1A9C64);
+
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        // RewardVaultLootBox contract address from latest deployment
-        RewardVaultLootBox lootBoxVault = RewardVaultLootBox(0xeaEdF82472b59C1D24Bd107c3beb993724a8CDaa);
+        // Pyth Entropy provider address
+        address provider = 0x6CC14824Ea2918f5De5C2f75A9Da968ad4BD6344;
         
-        // Deployer address (approved creator)
-        address deployer = 0xC8B2FE82bc31e8b2aDA6514a3d4F3d2cA131e926;
+        // Generate a random number for this loot box
+        bytes32 userRandomNumber = keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender));
         
-        // Correct Pyth Entropy provider address for testnet
-        address entropyProvider = 0x6CC14824Ea2918f5De5C2f75A9Da968ad4BD6344;
+        console.log("Creating loot box...");
+        console.log("Provider:", provider);
+        console.log("User random number:");
+        console.logBytes32(userRandomNumber);
         
-        // Generate a random number for testing
-        bytes32 userRandomNumber = keccak256(abi.encodePacked(block.timestamp, deployer, "test"));
+        // Get the required fee
+        uint256 fee = lootBoxVault.getFee(provider);
+        console.log("Required fee:", fee);
         
-        // Fetch the correct entropy fee from the contract
-        uint256 entropyFee = lootBoxVault.getFee(entropyProvider);
-        console.log("Fetched entropy fee for berachain-bepolia:", entropyFee);
-        
-        console.log("Deployer:", deployer);
-        console.log("Provider:", entropyProvider);
-        console.log("User Random Number:", uint256(userRandomNumber));
-        console.log("Entropy Fee:", entropyFee);
-        
-        // Create a loot box with the correct fee
-        uint64 sequenceNumber = lootBoxVault.createLootBox{value: entropyFee}(entropyProvider, userRandomNumber);
-        
-        console.log("Loot box creation initiated with sequence number:", sequenceNumber);
-        
+        // Create the loot box
+        uint64 sequenceNumber = lootBoxVault.createLootBox{value: fee}(provider, userRandomNumber);
+        console.log("Loot box creation initiated!");
+        console.log("Sequence number:", sequenceNumber);
+
         vm.stopBroadcast();
     }
 } 

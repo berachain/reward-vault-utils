@@ -6,7 +6,7 @@ import {RewardVaultLootBox} from "../src/examples/RewardVaultLootBox.sol";
 
 contract SetLootBoxLiquidBGTMinter is Script {
     // Contract addresses from successful deployment
-    address constant REWARD_VAULT_LOOTBOX = 0xce63Ae8857C5608DbbD7089D873Dd681375db714;
+    address constant REWARD_VAULT_LOOTBOX = 0x8A64bDB68F39238A724A9B7e5538fcC7F35a0465;
     address constant LIQUID_BGT_MINTER = 0x0d91683c12313d0a35A95Bb14a16bCAa208bf681;
     address constant FBGT_TOKEN = 0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece;
 

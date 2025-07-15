@@ -5,22 +5,21 @@ import {Script, console} from "forge-std/Script.sol";
 import {RewardVaultLootBox} from "../src/examples/RewardVaultLootBox.sol";
 
 contract SetCreatorApproval is Script {
+    // RewardVaultLootBox contract address from latest deployment
+    RewardVaultLootBox lootBoxVault = RewardVaultLootBox(0x894D26cf75816D137c62667613d0Ea0d8a1A9C64);
+
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        // RewardVaultLootBox contract address from latest deployment
-        RewardVaultLootBox lootBoxVault = RewardVaultLootBox(0xeaEdF82472b59C1D24Bd107c3beb993724a8CDaa);
-        
-        // Deployer address from deployment
-        address deployer = 0xC8B2FE82bc31e8b2aDA6514a3d4F3d2cA131e926;
-        
-        // Set the deployer as an approved creator
+        // Get the deployer address
+        address deployer = vm.addr(deployerPrivateKey);
+        console.log("Setting creator approval for:", deployer);
+
+        // Set creator approval to true
         lootBoxVault.setCreatorApproval(deployer, true);
-        
-        console.log("Creator approval set for:", deployer);
-        console.log("Contract address:", address(lootBoxVault));
-        
+        console.log("Creator approval set successfully!");
+
         vm.stopBroadcast();
     }
 } 
