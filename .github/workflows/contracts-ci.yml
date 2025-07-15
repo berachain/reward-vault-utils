@@ -48,12 +48,25 @@ jobs:
         with:
           submodules: recursive
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.15.4
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: stable
 
-      - name: Install dependencies
+      - name: Install npm dependencies
+        working-directory: contracts
+        run: pnpm install
+
+      - name: Install Foundry dependencies
         working-directory: contracts
         run: |
           forge install

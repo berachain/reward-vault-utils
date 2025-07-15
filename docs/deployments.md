@@ -24,6 +24,18 @@ This document contains the addresses and verification links for all contracts de
 - **Verification**: [View on Berascan](https://testnet.berascan.com/address/0x9f6a372c6f391fb1e1a7c078004bc489212bdea3)
 - **Description**: Manager contract for reward vaults with merkle tree support
 
+### Loot Box System (Latest Deployment)
+- **LootBox NFT**: `0x891a2e459303DbEb5487a7f437142A70D5912dDe`
+  - **Contract**: [LootBox.sol](../contracts/src/examples/LootBox.sol)
+  - **Verification**: [View on Berascan](https://testnet.berascan.com/address/0x891a2e459303dbeb5487a7f437142a70d5912dde)
+  - **Description**: ERC-721 NFT contract for loot box tokens
+
+- **RewardVaultLootBox**: `0x8A64bDB68F39238A724A9B7e5538fcC7F35a0465`
+  - **Contract**: [RewardVaultLootBox.sol](../contracts/src/examples/RewardVaultLootBox.sol)
+  - **Verification**: [View on Berascan](https://testnet.berascan.com/address/0x8a64bdb68f39238a724a9b7e5538fcc7f35a0465)
+  - **Description**: Main loot box system controller with liquid BGT integration
+  - **Liquid BGT Token**: `0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece` (FBGT)
+
 ### Button
 - **Address**: `0x3DE5C1118bfecB5DE628FDE9b3e0c72FEE66b7f2`
 - **Contract**: [Button.sol](../contracts/src/examples/Button.sol)
@@ -38,4 +50,5 @@ This document contains the addresses and verification links for all contracts de
 ## Contract Interactions
 1. FBGT token ownership is transferred to the LiquidBGTMinter
 2. LiquidBGTMinter is initialized with the FBGT token address
-3. RewardVaultManagerMerkle manages the reward vaults and their tokens 
+3. RewardVaultManagerMerkle manages the reward vaults and their tokens
+4. **Loot Box System**: RewardVaultLootBox is configured with FBGT as the liquid BGT token for rewards 
