@@ -13,6 +13,9 @@ abstract contract RewardVaultEntropy is RewardVaultManager, IEntropyConsumer {
     /// @notice The Pyth Entropy contract address
     IEntropy public immutable entropyContract;
 
+    /// @notice The default entropy provider address
+    address public immutable defaultEntropyProvider;
+
     /// @notice Maps sequence numbers to their callback data
     mapping(uint64 => EntropyCallbackData) public entropyCallbacks;
 
@@ -44,10 +47,13 @@ abstract contract RewardVaultEntropy is RewardVaultManager, IEntropyConsumer {
 
     /// @notice Creates a new RewardVaultEntropy
     /// @param _entropyContract The address of the Pyth Entropy contract
+    /// @param _defaultEntropyProvider The default entropy provider address
     /// @dev Calls the parent RewardVaultManager constructor
-    constructor(address _entropyContract) {
+    constructor(address _entropyContract, address _defaultEntropyProvider) {
         if (_entropyContract == address(0)) revert InvalidEntropyContractAddress();
+        if (_defaultEntropyProvider == address(0)) revert InvalidEntropyProvider();
         entropyContract = IEntropy(_entropyContract);
+        defaultEntropyProvider = _defaultEntropyProvider;
     }
 
     /// @notice Request entropy from Pyth Entropy with callback
@@ -174,6 +180,12 @@ abstract contract RewardVaultEntropy is RewardVaultManager, IEntropyConsumer {
     /// @return The fee amount in wei
     function getEntropyFee(address provider) external view returns (uint128) {
         return entropyContract.getFee(provider);
+    }
+
+    /// @notice Get the fee for the default provider
+    /// @return The fee amount in wei
+    function getEntropyFee() external view returns (uint128) {
+        return entropyContract.getFee(defaultEntropyProvider);
     }
 
     /// @notice Get provider information

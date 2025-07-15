@@ -42,8 +42,8 @@ The Loot Box System is a decentralized application built on Berachain that combi
 
 ### Contract Addresses (Berachain Bepolia)
 
-- **LootBox**: `0xBfE1657Fd43d18fF5023d34a8E5E9218aD040d8B`
-- **RewardVaultLootBox**: `0xce63Ae8857C5608DbbD7089D873Dd681375db714`
+- **LootBox**: `0x891a2e459303DbEb5487a7f437142A70D5912dDe`
+- **RewardVaultLootBox**: `0x8A64bDB68F39238A724A9B7e5538fcC7F35a0465`
 - **Pyth Entropy Provider**: `0x6CC14824Ea2918f5De5C2f75A9Da968ad4BD6344`
 
 ### Deployment Scripts

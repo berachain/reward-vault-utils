@@ -3,15 +3,23 @@ pragma solidity ^0.8.19;
 
 import {ERC721} from "@solmate/tokens/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {RarityTypes} from "../libraries/RarityTypes.sol";
 
 contract LootBox is ERC721, Ownable {
     address public controller;
     string public baseURI;
     uint256 public nextTokenId;
 
+    // Rarity enum moved from RarityTypes library
+    enum Rarity {
+        COMMON,
+        UNCOMMON,
+        RARE,
+        EPIC,
+        LEGENDARY
+    }
+
     struct LootBoxItem {
-        RarityTypes.Rarity rarity;
+        Rarity rarity;
         uint256 rewardBips;
         address rewardToken;
         bool claimed;
@@ -24,7 +32,12 @@ contract LootBox is ERC721, Ownable {
         _;
     }
 
-    constructor(string memory _name, string memory _symbol, string memory _baseURI, address _controller) ERC721(_name, _symbol) Ownable(msg.sender) {
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        string memory _baseURI,
+        address _controller
+    ) ERC721(_name, _symbol) Ownable(msg.sender) {
         baseURI = _baseURI;
         controller = _controller;
     }
@@ -41,6 +54,11 @@ contract LootBox is ERC721, Ownable {
 
     function setClaimed(uint256 tokenId) external onlyController {
         lootBoxItems[tokenId].claimed = true;
+    }
+
+    function burn(uint256 tokenId) external onlyController {
+        _burn(tokenId);
+        delete lootBoxItems[tokenId];
     }
 
     function setBaseURI(string memory _baseURI) external onlyController {
@@ -71,5 +89,36 @@ contract LootBox is ERC721, Ownable {
             value /= 10;
         }
         return string(buffer);
+    }
+
+    // LootBoxLogic functions moved from library
+    function generateRandomFactorFromEntropy(bytes32 entropy) internal pure returns (uint256) {
+        uint256 entropyMiddle = uint256(entropy >> 64) & 0xFFFFFFFFFFFFFFFF;
+        uint256 randomRange = 4000; // 12000 - 8000
+        uint256 randomOffset = entropyMiddle % randomRange;
+        return 8000 + randomOffset;
+    }
+
+    function determineRarityFromEntropy(
+        bytes32 entropy,
+        uint256[5] memory rarityProbabilities
+    ) external pure returns (Rarity) {
+        uint256 rarityRoll = uint256(entropy) % 10000;
+        uint256 cumulative = 0;
+        cumulative += rarityProbabilities[uint256(Rarity.COMMON)];
+        if (rarityRoll < cumulative) return Rarity.COMMON;
+        cumulative += rarityProbabilities[uint256(Rarity.UNCOMMON)];
+        if (rarityRoll < cumulative) return Rarity.UNCOMMON;
+        cumulative += rarityProbabilities[uint256(Rarity.RARE)];
+        if (rarityRoll < cumulative) return Rarity.RARE;
+        cumulative += rarityProbabilities[uint256(Rarity.EPIC)];
+        if (rarityRoll < cumulative) return Rarity.EPIC;
+        return Rarity.LEGENDARY;
+    }
+
+    function calculateRewardBipsFromEntropy(uint256 baseRewardBips, bytes32 entropy) external pure returns (uint256) {
+        uint256 randomFactor = generateRandomFactorFromEntropy(entropy);
+        uint256 finalRewardBips = (baseRewardBips * randomFactor) / 10000;
+        return finalRewardBips;
     }
 } 

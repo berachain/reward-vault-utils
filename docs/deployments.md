@@ -35,6 +35,7 @@ This document contains the addresses and verification links for all contracts de
   - **Verification**: [View on Berascan](https://testnet.berascan.com/address/0x8a64bdb68f39238a724a9b7e5538fcc7f35a0465)
   - **Description**: Main loot box system controller with liquid BGT integration
   - **Liquid BGT Token**: `0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece` (FBGT)
+  - **Pyth Entropy Provider**: `0x6CC14824Ea2918f5De5C2f75A9Da968ad4BD6344`
 
 ### Button
 - **Address**: `0x3DE5C1118bfecB5DE628FDE9b3e0c72FEE66b7f2`
@@ -51,4 +52,5 @@ This document contains the addresses and verification links for all contracts de
 1. FBGT token ownership is transferred to the LiquidBGTMinter
 2. LiquidBGTMinter is initialized with the FBGT token address
 3. RewardVaultManagerMerkle manages the reward vaults and their tokens
-4. **Loot Box System**: RewardVaultLootBox is configured with FBGT as the liquid BGT token for rewards 
+4. **Loot Box System**: RewardVaultLootBox is configured with FBGT as the liquid BGT token for rewards
+5. **Pyth Entropy Integration**: RewardVaultLootBox uses Pyth Entropy for provably fair randomness 
