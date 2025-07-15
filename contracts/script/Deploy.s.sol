@@ -10,8 +10,7 @@ import {FBGT} from "../src/examples/FBGT.sol";
 import {LiquidBGTMinter} from "../src/examples/LiquidBGTMinter.sol";
 
 contract DeployRewardVaultManagerMerkle is Script {
-    // Bepolia RewardVaultFactory address
-    address constant REWARD_VAULT_FACTORY = 0x94Ad6Ac84f6C6FbA8b8CCbD71d9f4f101def52a8;
+    address private constant REWARD_VAULT_FACTORY = 0x94Ad6Ac84f6C6FbA8b8CCbD71d9f4f101def52a8;
 
     function run() external {
         // Use the private key from the environment variable
@@ -31,24 +30,24 @@ contract DeployRewardVaultManagerMerkle is Script {
 
         // 4. Deploy FBGT token
         FBGT fbgt = new FBGT();
-        console.log("FBGT:", address(fbgt));
+        // console.log("FBGT:", address(fbgt));
 
         // 5. Deploy LiquidBGTMinter
         LiquidBGTMinter minter = new LiquidBGTMinter(address(fbgt));
-        console.log("LiquidBGTMinter:", address(minter));
+        // console.log("LiquidBGTMinter:", address(minter));
 
         // 6. Transfer FBGT ownership to the minter
         fbgt.transferOwnership(address(minter));
-        console.log("Transferred FBGT ownership to minter");
+        // console.log("Transferred FBGT ownership to minter");
 
         // 7. Log addresses
-        console.log("RewardVaultManagerMerkle:", address(manager));
-        console.log("RewardVaultToken:", rewardVaultToken);
-        console.log("RewardVault:", rewardVault);
+        // console.log("RewardVaultManagerMerkle:", address(manager));
+        // console.log("RewardVaultToken:", rewardVaultToken);
+        // console.log("RewardVault:", rewardVault);
 
         // 8. Deploy Button and log its address
         Button button = new Button();
-        console.log("Button:", address(button));
+        // console.log("Button:", address(button));
 
         vm.stopBroadcast();
     }
