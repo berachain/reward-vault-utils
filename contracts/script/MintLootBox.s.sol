@@ -37,7 +37,7 @@ contract MintLootBox is Script {
         bytes32 userRandomNumber = keccak256(abi.encodePacked(block.timestamp, deployer, "lootbox"));
         
         // Get the required fee
-        uint256 fee = lootBoxVault.getFee();
+        uint256 fee = lootBoxVault.getEntropyFee();
         
         uint64 sequenceNumber = lootBoxVault.createLootBox{value: fee}(userRandomNumber);
         

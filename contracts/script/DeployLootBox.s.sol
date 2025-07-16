@@ -106,7 +106,7 @@ contract DeployRewardVaultLootBox is Script {
         bytes32 userRandomNumber = keccak256(abi.encodePacked(block.timestamp, deployer, "deployment-test"));
         
         // Get the required fee
-        uint256 fee = lootBoxVault.getFee();
+        uint256 fee = lootBoxVault.getEntropyFee();
         console.log("Required fee for loot box creation:", fee);
         
         // Create the loot box
