@@ -1,78 +1,150 @@
 # Reward Vault Utilities
 
-A comprehensive suite of tools and utilities for building reward distribution systems on Berachain. This project provides extensible base contracts and example implementations for various reward distribution strategies.
+> **The Ultimate Toolkit for Building Scalable Reward Systems on Berachain**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Berachain](https://img.shields.io/badge/Built%20for-Berachain-blue)](https://berachain.com)
+[![Solidity](https://img.shields.io/badge/Solidity-^0.8.19-363636?logo=solidity)](https://soliditylang.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue?logo=typescript)](https://www.typescriptlang.org)
 
 ## Overview
 
-The Reward Vault Utilities system consists of two main components:
+**Reward Vault Utilities** is an experimental framework for building sophisticated reward distribution systems on Berachain. Whether you're launching a DeFi protocol, gaming platform, or community rewards program, our modular architecture provides everything you need to create engaging, fair, and scalable reward experiences.
 
-1. **Smart Contracts**: A collection of base contracts and example implementations for reward distribution, including:
-   - Extensible reward vault manager base contract
-   - Merkle-based distribution implementation
-   - **Loot Box System**: Pyth Entropy-powered NFT loot boxes with provably fair randomness
-   - Example implementations for various use cases
-2. **Indexer**: A NestJS-based service that provides event tracking, merkle tree management, and APIs for frontend integration.
+> ⚠️ **Experimental Software**: This project is in active development and has not been audited. Use at your own risk. Not recommended for production use without thorough security review.
+
+### Why Choose Reward Vault Utilities?
+
+- **Provably Fair**: Built on Pyth Entropy for cryptographically secure randomness
+- **Gas Optimized**: Merkle-based distributions for maximum efficiency
+- **NFT-Powered**: Seamless integration with ERC-721 loot boxes and collectibles
+- **Experimental**: Active development with testnet deployment
+- **Extensible**: Modular design for custom reward strategies
+
+
+## Core Features
+
+### **Loot Box System** 
+*Live on Berachain Bepolia Testnet*
+
+Experience the future of NFT-based rewards with our Pyth Entropy-powered loot box system:
+
+- **Provably Fair Randomness**: Every loot box opening is cryptographically verifiable
+- **Multi-Tier Rarities**: 5-tier system with dynamic reward scaling
+- **Liquid BGT Integration**: Seamless token distribution and claiming
+- **Gas-Efficient**: Optimized for cost-effective mass distribution
+
+### **Merkle-Based Distribution**
+*Enterprise-grade reward management*
+
+- **Batch Processing**: Distribute rewards to thousands of users in a single transaction
+- **Proof Verification**: Cryptographic proofs ensure only eligible users can claim
+- **Cost Optimization**: Dramatically reduce gas costs for large distributions
+- **Flexible Allocation**: Support for multiple tokens and reward types
+
+
 
 ## Architecture
 
-The system is built around an extensible reward vault manager that can be customized for different distribution strategies:
-
-1. **Base Reward Vault Manager**: Provides core functionality for reward management and distribution
-2. **Merkle Implementation**: Example extension that uses merkle proofs for gas-efficient distribution
-3. **Loot Box System**: NFT-based loot boxes using Pyth Entropy for provably fair randomness
-4. **Custom Extensions**: Developers can create their own extensions for specific distribution needs
-
-## 🎁 Loot Box System - Successfully Deployed!
-
-The Loot Box System has been successfully deployed and tested on Berachain Bepolia testnet!
-
-### ✅ First Successful Transaction
-- **Transaction Hash**: `0x6b89557c7505aafa27789d90025d06e79542b7623427510fa2a4746952155ff1`
-- **Status**: ✅ Successfully minted first loot box NFT
-- **View on Berascan**: [Transaction Details](https://testnet.berascan.com/tx/0x6b89557c7505aafa27789d90025d06e79542b7623427510fa2a4746952155ff1)
-
-### 🏗️ Deployed Contracts
-- **LootBox NFT**: `0x891a2e459303DbEb5487a7f437142A70D5912dDe`
-- **RewardVaultLootBox**: `0x8A64bDB68F39238A724A9B7e5538fcC7F35a0465`
-- **Liquid BGT Token**: `0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece` (FBGT)
-
-### 📚 Documentation
-- [Loot Box System Guide](./docs/lootbox-system.md)
-- [Successful Transactions](./docs/successful-transactions.md)
-
-## Project Structure
-
 ```
-reward-vault-utils/
-├── contracts/         # Smart contracts for reward distribution
-│   ├── src/
-│   │   ├── core/     # Base reward vault manager and core contracts
-│   │   ├── merkle/   # Merkle-based distribution implementation
-│   │   └── examples/ # Example implementations and usage
-│   │       ├── LootBox.sol              # ERC-721 NFT contract
-│   │       ├── RewardVaultLootBox.sol   # Main loot box controller
-│   │       └── ...                      # Other examples
-├── docs/             # Documentation
-│   ├── lootbox-system.md           # Loot box system documentation
-│   └── successful-transactions.md  # Transaction history
-└── indexer/          # NestJS service for event indexing and API endpoints
+┌─────────────────────────────────────────────────────────────┐
+│                    Frontend Applications                    │
+├─────────────────────────────────────────────────────────────┤
+│                    API Layer (NestJS)                      │
+├─────────────────────────────────────────────────────────────┤
+│                Smart Contract Layer                        │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
+│  │   LootBox   │  │   Merkle    │  │   Custom    │        │
+│  │   System    │  │ Distribution│  │ Extensions  │        │
+│  └─────────────┘  └─────────────┘  └─────────────┘        │
+├─────────────────────────────────────────────────────────────┤
+│                Berachain Blockchain                        │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## Getting Started
+## Quick Start
 
-See the individual README files in each directory for specific setup instructions:
+> ⚠️ **Security Notice**: This software is experimental and unaudited. Only use on testnets for development and testing purposes. Do not deploy to mainnet without comprehensive security audits.
 
-- [Contracts Setup](./contracts/README.md)
-- [Indexer Setup](./indexer/README.md)
-- [Loot Box System Documentation](./docs/lootbox-system.md)
+### Prerequisites
+- Node.js 18+
+- Foundry
+- Berachain Bepolia testnet access
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/berachain/reward-vault-utils.git
+cd reward-vault-utils
+
+# Install dependencies
+pnpm install
+cd contracts && forge install && cd ..
+```
+
+### Deploy Your First Loot Box System
+
+```bash
+# Set up environment
+cp .env.example .env
+# Add your private key and RPC URL
+
+# Deploy contracts
+forge script contracts/script/DeployLootBox.s.sol --rpc-url $RPC_URL --broadcast
+```
+
+## Documentation
+
+- **[Loot Box System Guide](./docs/lootbox-system.md)** - Complete loot box implementation guide
+- **[Deployment Guide](./docs/deployments.md)** - Contract addresses and verification links
+- **[Transaction History](./docs/successful-transactions.md)** - Live deployment tracking
 
 ## Development
 
-1. Clone the repository
-2. Install dependencies for both contracts and indexer
-3. Follow the setup instructions in each component's README
-4. Run tests to ensure everything is working correctly
+### Project Structure
+```
+reward-vault-utils/
+├── contracts/                 # Smart contracts
+│   ├── src/
+│   │   ├── core/             # Base contracts
+│   │   ├── examples/         # Implementation examples
+│   │   └── interfaces/       # Contract interfaces
+│   └── script/               # Deployment scripts
+
+└── docs/                     # Documentation
+```
+
+### Testing
+```bash
+# Run contract tests
+cd contracts && forge test -vv
+```
+
+## Contributing
+
+We welcome contributions from the community! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+> ⚠️ **Development Status**: This project is actively being developed and improved. APIs and contracts may change between versions. Please review the latest documentation before integrating.
+
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes using [conventional commits](https://www.conventionalcommits.org/):
+   ```bash
+   git commit -m 'feat: add amazing feature'
+   git commit -m 'fix: resolve critical bug'
+   git commit -m 'docs: update installation guide'
+   ```
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-MIT 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Built with ❤️ for the Berachain ecosystem**
+
+> ⚠️ **Disclaimer**: This software is provided "as is" without warranty of any kind. Use at your own risk. The authors are not responsible for any losses or damages resulting from the use of this software.
