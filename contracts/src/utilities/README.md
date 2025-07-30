@@ -67,4 +67,74 @@ forge test --match-contract TokenFactoryTest
 Deploy using the provided script:
 ```bash
 forge script script/DeployTokenFactory.s.sol --rpc-url <RPC_URL> --broadcast
+```
+
+## MerkleManagerFactory
+
+The `MerkleManagerFactory` is a utility contract that automates the deployment of complete merkle reward vault manager setups.
+
+### Features
+
+- Deploys all necessary contracts in a single transaction
+- Automatically sets up the complete merkle manager ecosystem
+- Handles contract initialization and ownership transfers
+- Uses the existing reward vault factory for vault creation
+- Includes comprehensive error handling
+
+### Usage
+
+```solidity
+// Deploy the factory (requires reward vault factory address)
+MerkleManagerFactory factory = new MerkleManagerFactory(rewardVaultFactoryAddress);
+
+// Deploy a complete merkle manager setup
+(
+    address manager,
+    address rewardVaultToken,
+    address fbgt,
+    address liquidBGTMinter
+) = factory.deployMerkleManager();
+```
+
+### What Gets Deployed
+
+1. **RewardVaultManagerMerkle**: The main merkle manager contract (owned by deployer)
+2. **RewardVaultToken**: Staking token for the reward vault
+3. **Uses existing FBGT**: `0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece`
+4. **Uses existing LiquidBGTMinter**: `0x0d91683c12313d0a35A95Bb14a16bCAa208bf681`
+
+### Setup Process
+
+1. Deploys `RewardVaultManagerMerkle` with its own `RewardVaultToken`
+2. Sets the existing `LiquidBGTMinter` and `FBGT` token on the manager
+3. Transfers ownership of the manager to the deployer
+4. **RewardVault creation**: Will be handled via UI wizard later
+
+### Events
+
+- `MerkleManagerDeployed`: Emitted when a new setup is deployed
+  - `manager`: Address of the RewardVaultManagerMerkle
+  - `fbgt`: Address of the existing FBGT token
+  - `liquidBGTMinter`: Address of the existing LiquidBGTMinter
+  - `rewardVaultToken`: Address of the RewardVaultToken
+  - `deployer`: Address that deployed the setup
+
+### Errors
+
+- `ZeroRewardVaultFactory`: Thrown when reward vault factory address is zero
+- `RewardVaultCreationFailed`: Thrown when reward vault creation fails
+- `InitializationFailed`: Thrown when manager initialization fails
+
+### Testing
+
+Run the tests with:
+```bash
+forge test --match-contract MerkleManagerFactoryTest
+```
+
+### Deployment
+
+Deploy using the provided script:
+```bash
+forge script script/DeployMerkleManagerFactory.s.sol --rpc-url <RPC_URL> --broadcast
 ``` 
