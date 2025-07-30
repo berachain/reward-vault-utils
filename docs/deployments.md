@@ -43,6 +43,20 @@ This document contains the addresses and verification links for all contracts de
 - **Verification**: [View on Berascan](https://testnet.berascan.com/address/0x3de5c1118bfecb5de628fde9b3e0c72fee66b7f2)
 - **Description**: Example button contract with cooldown functionality
 
+### MerkleManagerFactory
+- **Address**: `0x89a2e4bd1cfbf5D4C34C67606826922aB3e7D5Fd`
+- **Contract**: [MerkleManagerFactory.sol](../contracts/src/utilities/MerkleManagerFactory.sol)
+- **Verification**: [View on Berascan](https://testnet.berascan.com/address/0x89a2e4bd1cfbf5d4c34c67606826922ab3e7d5fd)
+- **Description**: Factory contract for deploying Merkle Reward Vault Manager contracts
+- **Constructor Args**: RewardVaultFactory (`0x94Ad6Ac84f6C6FbA8b8CCbD71d9f4f101def52a8`)
+
+#### Test Deployment Results
+The factory was successfully deployed and tested with the following deployed contracts:
+- **Manager**: `0x779010dBbDC696164209cB189412be3f46Ab020d`
+- **RewardVaultToken**: `0x4E0aaADf5319636cf06b16C1cEdf5CBd6DCE68C4`
+- **FBGT**: `0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece` (existing)
+- **LiquidBGTMinter**: `0x0d91683c12313d0a35A95Bb14a16bCAa208bf681` (existing)
+
 ## Deployment Details
 - **Network**: Berachain Testnet (Bepolia)
 - **RPC URL**: https://bepolia.rpc.berachain.com
@@ -53,4 +67,5 @@ This document contains the addresses and verification links for all contracts de
 2. LiquidBGTMinter is initialized with the FBGT token address
 3. RewardVaultManagerMerkle manages the reward vaults and their tokens
 4. **Loot Box System**: RewardVaultLootBox is configured with FBGT as the liquid BGT token for rewards
-5. **Pyth Entropy Integration**: RewardVaultLootBox uses Pyth Entropy for provably fair randomness 
+5. **Pyth Entropy Integration**: RewardVaultLootBox uses Pyth Entropy for provably fair randomness
+6. **MerkleManagerFactory**: Automates deployment of Merkle Reward Vault Manager contracts with proper initialization and ownership transfer 

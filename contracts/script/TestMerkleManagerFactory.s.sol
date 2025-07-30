@@ -20,18 +20,17 @@ contract TestMerkleManagerFactory is Script {
         // Deploy a complete merkle manager setup
         (
             address manager,
-            address rewardVault,
+            address rewardVaultToken,
             address fbgt,
-            address liquidBGTMinter,
-            address rewardVaultToken
+            address liquidBGTMinter
         ) = factory.deployMerkleManager();
 
         console.log("Deployment complete!");
         console.log("RewardVaultManagerMerkle:", manager);
-        console.log("RewardVault:", rewardVault);
+        console.log("RewardVaultToken:", rewardVaultToken);
         console.log("FBGT (existing):", fbgt);
         console.log("LiquidBGTMinter (existing):", liquidBGTMinter);
-        console.log("RewardVaultToken:", rewardVaultToken);
+        console.log("Note: RewardVault will be created via UI wizard");
 
         vm.stopBroadcast();
     }

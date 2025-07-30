@@ -18,6 +18,20 @@ contract DeployMerkleManagerFactory is Script {
         console.log("MerkleManagerFactory deployed at:", address(factory));
         console.log("RewardVaultFactory address:", REWARD_VAULT_FACTORY);
 
+        // Test deployment of a merkle manager
+        (
+            address manager,
+            address rewardVaultToken,
+            address fbgt,
+            address liquidBGTMinter
+        ) = factory.deployMerkleManager();
+
+        console.log("Test MerkleManager deployment:");
+        console.log("  Manager:", manager);
+        console.log("  RewardVaultToken:", rewardVaultToken);
+        console.log("  FBGT:", fbgt);
+        console.log("  LiquidBGTMinter:", liquidBGTMinter);
+
         vm.stopBroadcast();
     }
 } 

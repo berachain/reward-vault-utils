@@ -90,42 +90,30 @@ MerkleManagerFactory factory = new MerkleManagerFactory(rewardVaultFactoryAddres
 // Deploy a complete merkle manager setup
 (
     address manager,
-    address rewardVault,
+    address rewardVaultToken,
     address fbgt,
-    address liquidBGTMinter,
-    address rewardVaultToken
+    address liquidBGTMinter
 ) = factory.deployMerkleManager();
-
-// Or use the default function
-(
-    address manager,
-    address rewardVault,
-    address fbgt,
-    address liquidBGTMinter,
-    address rewardVaultToken
-) = factory.deployMerkleManagerDefault();
 ```
 
 ### What Gets Deployed
 
-1. **RewardVaultManagerMerkle**: The main merkle manager contract
-2. **RewardVault**: Created via the reward vault factory
-3. **RewardVaultToken**: Staking token for the reward vault
-4. **Uses existing FBGT**: `0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece`
-5. **Uses existing LiquidBGTMinter**: `0x0d91683c12313d0a35A95Bb14a16bCAa208bf681`
+1. **RewardVaultManagerMerkle**: The main merkle manager contract (owned by deployer)
+2. **RewardVaultToken**: Staking token for the reward vault
+3. **Uses existing FBGT**: `0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece`
+4. **Uses existing LiquidBGTMinter**: `0x0d91683c12313d0a35A95Bb14a16bCAa208bf681`
 
 ### Setup Process
 
 1. Deploys `RewardVaultManagerMerkle` with its own `RewardVaultToken`
-2. Creates a `RewardVault` using the factory with the staking token
-3. Initializes the manager with the reward vault
-4. Sets the existing `LiquidBGTMinter` and `FBGT` token on the manager
+2. Sets the existing `LiquidBGTMinter` and `FBGT` token on the manager
+3. Transfers ownership of the manager to the deployer
+4. **RewardVault creation**: Will be handled via UI wizard later
 
 ### Events
 
 - `MerkleManagerDeployed`: Emitted when a new setup is deployed
   - `manager`: Address of the RewardVaultManagerMerkle
-  - `rewardVault`: Address of the RewardVault
   - `fbgt`: Address of the existing FBGT token
   - `liquidBGTMinter`: Address of the existing LiquidBGTMinter
   - `rewardVaultToken`: Address of the RewardVaultToken

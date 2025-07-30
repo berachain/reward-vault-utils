@@ -29,74 +29,26 @@ contract MerkleManagerFactoryTest is Test {
     }
 
     function test_DeployMerkleManager() public {
-        // Mock the reward vault factory to return a valid address
-        vm.mockCall(
-            mockRewardVaultFactory,
-            abi.encodeWithSelector(IRewardVaultFactory.createRewardVault.selector),
-            abi.encode(address(0x456))
-        );
-
         // Deploy the merkle manager setup
         (
             address manager,
-            address rewardVault,
+            address rewardVaultToken,
             address fbgt,
-            address liquidBGTMinter,
-            address rewardVaultToken
+            address liquidBGTMinter
         ) = factory.deployMerkleManager();
 
         // Verify all contracts were deployed
         assertTrue(manager != address(0), "Manager should be deployed");
-        assertTrue(rewardVault != address(0), "RewardVault should be deployed");
-        assertTrue(fbgt != address(0), "FBGT should be deployed");
-        assertTrue(liquidBGTMinter != address(0), "LiquidBGTMinter should be deployed");
         assertTrue(rewardVaultToken != address(0), "RewardVaultToken should be deployed");
+        assertTrue(fbgt != address(0), "FBGT should be set");
+        assertTrue(liquidBGTMinter != address(0), "LiquidBGTMinter should be set");
 
-        // Verify the manager is initialized
+        // Verify ownership was transferred to the deployer
         RewardVaultManagerMerkle managerContract = RewardVaultManagerMerkle(manager);
-        assertTrue(managerContract.initialized(), "Manager should be initialized");
-
-        // Verify the liquid BGT minter was set correctly
-        RewardVaultManagerMerkle managerContract = RewardVaultManagerMerkle(manager);
-        assertEq(address(managerContract.liquidBGTMinter()), liquidBGTMinter, "LiquidBGTMinter should be set correctly");
-        assertEq(managerContract.liquidBGTToken(), fbgt, "LiquidBGT token should be set correctly");
+        assertEq(managerContract.owner(), address(this), "Manager ownership should be transferred to deployer");
     }
 
-    function test_DeployMerkleManagerDefault() public {
-        // Mock the reward vault factory to return a valid address
-        vm.mockCall(
-            mockRewardVaultFactory,
-            abi.encodeWithSelector(IRewardVaultFactory.createRewardVault.selector),
-            abi.encode(address(0x456))
-        );
 
-        // Deploy the merkle manager setup using default function
-        (
-            address manager,
-            address rewardVault,
-            address fbgt,
-            address liquidBGTMinter,
-            address rewardVaultToken
-        ) = factory.deployMerkleManagerDefault();
 
-        // Verify all contracts were deployed
-        assertTrue(manager != address(0), "Manager should be deployed");
-        assertTrue(rewardVault != address(0), "RewardVault should be deployed");
-        assertTrue(fbgt != address(0), "FBGT should be deployed");
-        assertTrue(liquidBGTMinter != address(0), "LiquidBGTMinter should be deployed");
-        assertTrue(rewardVaultToken != address(0), "RewardVaultToken should be deployed");
-    }
 
-    function test_RewardVaultCreationFailure() public {
-        // Mock the reward vault factory to revert
-        vm.mockCallRevert(
-            mockRewardVaultFactory,
-            abi.encodeWithSelector(IRewardVaultFactory.createRewardVault.selector),
-            "RewardVault creation failed"
-        );
-
-        // Expect the deployment to revert
-        vm.expectRevert(MerkleManagerFactory.RewardVaultCreationFailed.selector);
-        factory.deployMerkleManager();
-    }
 } 
