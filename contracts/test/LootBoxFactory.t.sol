@@ -85,22 +85,111 @@ contract LootBoxFactoryTest is Test {
     }
 
     function test_DeployWithDefaults() public {
-        // Skip deployment tests in unit test environment
-        // These tests require a fork of the actual network to work properly
-        // The deployment functionality is tested in integration tests
-        console.log("Skipping deployment test - requires network fork");
+        (
+            address lootBox,
+            address lootBoxVault,
+            address rewardVault,
+            address rewardVaultToken
+        ) = factory.deployLootBoxSystemWithDefaults();
+
+        // Verify contracts were deployed
+        assertTrue(lootBox != address(0), "LootBox should be deployed");
+        assertTrue(lootBoxVault != address(0), "LootBoxVault should be deployed");
+        assertTrue(rewardVault != address(0), "RewardVault should be created");
+        assertTrue(rewardVaultToken != address(0), "RewardVaultToken should exist");
+
+        // Verify LootBox configuration
+        LootBox lootBoxContract = LootBox(lootBox);
+        assertEq(lootBoxContract.name(), "TestLootBox");
+        assertEq(lootBoxContract.symbol(), "TEST");
+        assertEq(lootBoxContract.controller(), lootBoxVault);
+
+        // Verify RewardVaultLootBox configuration
+        RewardVaultLootBox vaultContract = RewardVaultLootBox(lootBoxVault);
+        assertEq(address(vaultContract.lootBoxContract()), lootBox);
+        // Note: entropyContract is immutable but not public, so we can't test it directly
+        // The contract is properly initialized with the correct entropy contract
+        assertEq(vaultContract.defaultEntropyProvider(), DEFAULT_ENTROPY_PROVIDER);
+
+        // Verify ownership - the factory transfers ownership to itself, then to the deployer
+        // In the test environment, the factory is the deployer, so ownership should be the factory
+        assertEq(lootBoxContract.owner(), address(factory));
     }
 
     function test_DeployWithCustomNFT() public {
-        // Skip deployment tests in unit test environment
-        // These tests require a fork of the actual network to work properly
-        console.log("Skipping deployment test - requires network fork");
+        (
+            address lootBox,
+            address lootBoxVault,
+            address rewardVault,
+            address rewardVaultToken
+        ) = factory.deployLootBoxSystemWithCustomNFT(
+            "CustomLootBox",
+            "CUSTOM",
+            "https://custom.example.com/metadata/"
+        );
+
+        // Verify custom NFT configuration
+        LootBox lootBoxContract = LootBox(lootBox);
+        assertEq(lootBoxContract.name(), "CustomLootBox");
+        assertEq(lootBoxContract.symbol(), "CUSTOM");
+
+        // Verify other contracts were deployed
+        assertTrue(lootBoxVault != address(0), "LootBoxVault should be deployed");
+        assertTrue(rewardVault != address(0), "RewardVault should be created");
+        assertTrue(rewardVaultToken != address(0), "RewardVaultToken should exist");
     }
 
     function test_DeployWithFullCustomConfig() public {
-        // Skip deployment tests in unit test environment
-        // These tests require a fork of the actual network to work properly
-        console.log("Skipping deployment test - requires network fork");
+        LootBoxFactory.LootBoxConfig memory customConfig = LootBoxFactory.LootBoxConfig({
+            // NFT Configuration
+            name: "PremiumLootBox",
+            symbol: "PREMIUM",
+            baseURI: "https://premium.example.com/metadata/",
+            
+            // Rarity & Reward Configuration
+            rarityProbabilities: new uint256[](5),
+            rarityRewardBips: new uint256[](5),
+            
+            // Entropy Configuration
+            entropyContract: ENTROPY_CONTRACT,
+            defaultEntropyProvider: DEFAULT_ENTROPY_PROVIDER,
+            
+            // Integration Configuration
+            liquidBGTMinter: LIQUID_BGT_MINTER,
+            liquidBGTToken: FBGT_TOKEN,
+            rewardVaultFactory: REWARD_VAULT_FACTORY
+        });
+
+        // Set custom rarity probabilities
+        customConfig.rarityProbabilities[0] = 6000; // COMMON (60%)
+        customConfig.rarityProbabilities[1] = 3000; // UNCOMMON (30%)
+        customConfig.rarityProbabilities[2] = 800;  // RARE (8%)
+        customConfig.rarityProbabilities[3] = 150;  // EPIC (1.5%)
+        customConfig.rarityProbabilities[4] = 50;   // LEGENDARY (0.5%)
+
+        // Set custom reward bips
+        customConfig.rarityRewardBips[0] = 5;     // COMMON (0.05%)
+        customConfig.rarityRewardBips[1] = 50;    // UNCOMMON (0.5%)
+        customConfig.rarityRewardBips[2] = 250;   // RARE (2.5%)
+        customConfig.rarityRewardBips[3] = 1000;  // EPIC (10%)
+        customConfig.rarityRewardBips[4] = 2500;  // LEGENDARY (25%)
+
+        (
+            address lootBox,
+            address lootBoxVault,
+            address rewardVault,
+            address rewardVaultToken
+        ) = factory.deployLootBoxSystem(customConfig);
+
+        // Verify custom configuration
+        LootBox lootBoxContract = LootBox(lootBox);
+        assertEq(lootBoxContract.name(), "PremiumLootBox");
+        assertEq(lootBoxContract.symbol(), "PREMIUM");
+
+        // Verify other contracts were deployed
+        assertTrue(lootBoxVault != address(0), "LootBoxVault should be deployed");
+        assertTrue(rewardVault != address(0), "RewardVault should be created");
+        assertTrue(rewardVaultToken != address(0), "RewardVaultToken should exist");
     }
 
     function test_ValidateConfig() public {
@@ -147,8 +236,26 @@ contract LootBoxFactoryTest is Test {
     }
 
     function test_DeployMultipleSystems() public {
-        // Skip deployment tests in unit test environment
-        // These tests require a fork of the actual network to work properly
-        console.log("Skipping deployment test - requires network fork");
+        // Deploy first system
+        (
+            address lootBox1,
+            address lootBoxVault1,
+            address rewardVault1,
+            address rewardVaultToken1
+        ) = factory.deployLootBoxSystemWithDefaults();
+
+        // Deploy second system
+        (
+            address lootBox2,
+            address lootBoxVault2,
+            address rewardVault2,
+            address rewardVaultToken2
+        ) = factory.deployLootBoxSystemWithDefaults();
+
+        // Verify they are different addresses
+        assertTrue(lootBox1 != lootBox2, "LootBox addresses should be different");
+        assertTrue(lootBoxVault1 != lootBoxVault2, "LootBoxVault addresses should be different");
+        assertTrue(rewardVault1 != rewardVault2, "RewardVault addresses should be different");
+        assertTrue(rewardVaultToken1 != rewardVaultToken2, "RewardVaultToken addresses should be different");
     }
 } 
