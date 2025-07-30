@@ -4,8 +4,6 @@ pragma solidity ^0.8.26;
 import {Owned} from "@solmate/auth/Owned.sol";
 import {RewardVaultManagerMerkle} from "../examples/RewardVaultManagerMerkle.sol";
 import {RewardVaultToken} from "../examples/RewardVaultToken.sol";
-import {FBGT} from "../examples/FBGT.sol";
-import {LiquidBGTMinter} from "../examples/LiquidBGTMinter.sol";
 import {IRewardVaultFactory} from "../interfaces/IRewardVaultFactory.sol";
 import {IRewardVault} from "../interfaces/IRewardVault.sol";
 
@@ -18,8 +16,8 @@ contract MerkleManagerFactory is Owned {
     /// @notice Emitted when a new merkle manager setup is deployed
     /// @param manager The address of the deployed RewardVaultManagerMerkle
     /// @param rewardVault The address of the deployed RewardVault
-    /// @param fbgt The address of the deployed FBGT token
-    /// @param liquidBGTMinter The address of the deployed LiquidBGTMinter
+    /// @param fbgt The address of the existing FBGT token
+    /// @param liquidBGTMinter The address of the existing LiquidBGTMinter
     /// @param rewardVaultToken The address of the RewardVaultToken
     /// @param deployer The address that deployed the setup
     event MerkleManagerDeployed(
@@ -60,8 +58,8 @@ contract MerkleManagerFactory is Owned {
     /// @notice Deploys a complete merkle manager setup
     /// @return manager The address of the deployed RewardVaultManagerMerkle
     /// @return rewardVault The address of the deployed RewardVault
-    /// @return fbgt The address of the deployed FBGT token
-    /// @return liquidBGTMinter The address of the deployed LiquidBGTMinter
+    /// @return fbgt The address of the existing FBGT token
+    /// @return liquidBGTMinter The address of the existing LiquidBGTMinter
     /// @return rewardVaultToken The address of the RewardVaultToken
     function deployMerkleManager() external returns (
         address manager,
@@ -87,16 +85,12 @@ contract MerkleManagerFactory is Owned {
         // 4. Initialize the manager with the reward vault
         managerContract.initialize(rewardVault);
 
-        // 5. Deploy FBGT token
-        FBGT fbgtContract = new FBGT();
-        fbgt = address(fbgtContract);
+        // 5. Use existing FBGT and LiquidBGTMinter addresses
+        fbgt = 0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece;
+        liquidBGTMinter = 0x0d91683c12313d0a35A95Bb14a16bCAa208bf681;
 
-        // 6. Deploy LiquidBGTMinter
-        LiquidBGTMinter minterContract = new LiquidBGTMinter(fbgt);
-        liquidBGTMinter = address(minterContract);
-
-        // 7. Transfer FBGT ownership to the minter
-        fbgtContract.transferOwnership(liquidBGTMinter);
+        // 6. Set the liquid BGT minter on the manager
+        managerContract.setLiquidBGTMinter(liquidBGTMinter, fbgt);
 
         emit MerkleManagerDeployed(
             manager,

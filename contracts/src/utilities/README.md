@@ -110,26 +110,24 @@ MerkleManagerFactory factory = new MerkleManagerFactory(rewardVaultFactoryAddres
 
 1. **RewardVaultManagerMerkle**: The main merkle manager contract
 2. **RewardVault**: Created via the reward vault factory
-3. **FBGT**: Fake BGT token for testing
-4. **LiquidBGTMinter**: Contract for minting liquid BGT
-5. **RewardVaultToken**: Staking token for the reward vault
+3. **RewardVaultToken**: Staking token for the reward vault
+4. **Uses existing FBGT**: `0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece`
+5. **Uses existing LiquidBGTMinter**: `0x0d91683c12313d0a35A95Bb14a16bCAa208bf681`
 
 ### Setup Process
 
 1. Deploys `RewardVaultManagerMerkle` with its own `RewardVaultToken`
 2. Creates a `RewardVault` using the factory with the staking token
 3. Initializes the manager with the reward vault
-4. Deploys `FBGT` token
-5. Deploys `LiquidBGTMinter` with FBGT
-6. Transfers FBGT ownership to the minter
+4. Sets the existing `LiquidBGTMinter` and `FBGT` token on the manager
 
 ### Events
 
 - `MerkleManagerDeployed`: Emitted when a new setup is deployed
   - `manager`: Address of the RewardVaultManagerMerkle
   - `rewardVault`: Address of the RewardVault
-  - `fbgt`: Address of the FBGT token
-  - `liquidBGTMinter`: Address of the LiquidBGTMinter
+  - `fbgt`: Address of the existing FBGT token
+  - `liquidBGTMinter`: Address of the existing LiquidBGTMinter
   - `rewardVaultToken`: Address of the RewardVaultToken
   - `deployer`: Address that deployed the setup
 

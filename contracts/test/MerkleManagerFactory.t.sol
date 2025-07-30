@@ -4,8 +4,6 @@ pragma solidity ^0.8.26;
 import {Test, console} from "forge-std/Test.sol";
 import {MerkleManagerFactory} from "../src/utilities/MerkleManagerFactory.sol";
 import {RewardVaultManagerMerkle} from "../src/examples/RewardVaultManagerMerkle.sol";
-import {FBGT} from "../src/examples/FBGT.sol";
-import {LiquidBGTMinter} from "../src/examples/LiquidBGTMinter.sol";
 import {IRewardVaultFactory} from "../src/interfaces/IRewardVaultFactory.sol";
 
 contract MerkleManagerFactoryTest is Test {
@@ -58,9 +56,10 @@ contract MerkleManagerFactoryTest is Test {
         RewardVaultManagerMerkle managerContract = RewardVaultManagerMerkle(manager);
         assertTrue(managerContract.initialized(), "Manager should be initialized");
 
-        // Verify FBGT ownership was transferred
-        FBGT fbgtContract = FBGT(fbgt);
-        assertEq(fbgtContract.owner(), liquidBGTMinter, "FBGT ownership should be transferred to minter");
+        // Verify the liquid BGT minter was set correctly
+        RewardVaultManagerMerkle managerContract = RewardVaultManagerMerkle(manager);
+        assertEq(address(managerContract.liquidBGTMinter()), liquidBGTMinter, "LiquidBGTMinter should be set correctly");
+        assertEq(managerContract.liquidBGTToken(), fbgt, "LiquidBGT token should be set correctly");
     }
 
     function test_DeployMerkleManagerDefault() public {

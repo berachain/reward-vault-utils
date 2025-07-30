@@ -29,8 +29,8 @@ contract TestMerkleManagerFactory is Script {
         console.log("Deployment complete!");
         console.log("RewardVaultManagerMerkle:", manager);
         console.log("RewardVault:", rewardVault);
-        console.log("FBGT:", fbgt);
-        console.log("LiquidBGTMinter:", liquidBGTMinter);
+        console.log("FBGT (existing):", fbgt);
+        console.log("LiquidBGTMinter (existing):", liquidBGTMinter);
         console.log("RewardVaultToken:", rewardVaultToken);
 
         vm.stopBroadcast();
