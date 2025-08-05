@@ -46,7 +46,7 @@ contract DeployRewardVaultLootBox is Script {
         console.log("=== Deploying LootBox System ===");
         
         // 1. Deploy LootBox (now self-contained, no library dependencies)
-        LootBox lootBox = new LootBox(name, symbol, baseURI, address(0)); // controller will be set after deployment
+        LootBox lootBox = new LootBox(name, symbol, baseURI); // controller will be set after deployment
         console.log("[SUCCESS] LootBox deployed at:", address(lootBox));
 
         // 2. Deploy RewardVaultLootBox with LootBox address and default provider

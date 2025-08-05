@@ -35,11 +35,10 @@ contract LootBox is ERC721, Ownable {
     constructor(
         string memory _name,
         string memory _symbol,
-        string memory _baseURI,
-        address _controller
+        string memory _baseURI
     ) ERC721(_name, _symbol) Ownable(msg.sender) {
         baseURI = _baseURI;
-        controller = _controller;
+        controller = address(0);
     }
 
     function setController(address _controller) external onlyOwner {

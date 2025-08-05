@@ -78,8 +78,6 @@ contract MerkleManagerFactory is Owned {
         // 4. Transfer ownership of the manager to the deployer
         managerContract.transferOwnership(msg.sender);
 
-        // Note: setLiquidBGTMinter will be called after reward vault is set via UI wizard
-
         emit MerkleManagerDeployed(
             manager,
             fbgt,
