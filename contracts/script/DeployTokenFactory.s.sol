@@ -13,9 +13,9 @@ contract DeployTokenFactory is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         TokenFactory factory = new TokenFactory();
-        
+
         console.log("TokenFactory deployed at:", address(factory));
 
         vm.stopBroadcast();
     }
-} 
+}

@@ -14,14 +14,12 @@ contract RewardVaultLootBoxFactory {
         uint256[] memory rarityProbabilities,
         uint256[] memory rarityRewardBips
     ) external returns (address rewardVaultLootBox) {
-        rewardVaultLootBox = address(new RewardVaultLootBox(
-            ENTROPY_CONTRACT,
-            lootBoxContract,
-            DEFAULT_ENTROPY_PROVIDER,
-            rarityProbabilities,
-            rarityRewardBips
-        ));
+        rewardVaultLootBox = address(
+            new RewardVaultLootBox(
+                ENTROPY_CONTRACT, lootBoxContract, DEFAULT_ENTROPY_PROVIDER, rarityProbabilities, rarityRewardBips
+            )
+        );
 
         emit RewardVaultLootBoxDeployed(rewardVaultLootBox, msg.sender);
     }
-} 
+}

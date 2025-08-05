@@ -19,4 +19,4 @@ contract SendFBGTToVault is Script {
 
         vm.stopBroadcast();
     }
-} 
+}

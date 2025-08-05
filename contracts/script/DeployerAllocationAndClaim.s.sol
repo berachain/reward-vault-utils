@@ -27,4 +27,4 @@ contract DeployerAllocationAndClaim is Script {
         manager.claim(MERKLE_ROOT, CLAIM_ID, FBGT, AMOUNT, proof);
         vm.stopBroadcast();
     }
-} 
+}

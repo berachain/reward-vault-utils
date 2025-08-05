@@ -17,16 +17,15 @@ contract LootBoxFactory {
     /// @param symbol The symbol of the NFT collection
     /// @param baseURI The base URI for metadata
     /// @return lootBox The address of the deployed LootBox contract
-    function createLootBox(
-        string memory name,
-        string memory symbol,
-        string memory baseURI
-    ) external returns (address lootBox) {
+    function createLootBox(string memory name, string memory symbol, string memory baseURI)
+        external
+        returns (address lootBox)
+    {
         lootBox = address(new LootBox(name, symbol, baseURI));
-        
+
         // Transfer ownership to deployer
         LootBox(lootBox).transferOwnership(msg.sender);
-        
+
         emit LootBoxDeployed(lootBox, msg.sender);
     }
-} 
+}

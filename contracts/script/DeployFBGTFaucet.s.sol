@@ -35,4 +35,4 @@ contract DeployFBGTFaucet is Script {
 
         vm.stopBroadcast();
     }
-} 
+}

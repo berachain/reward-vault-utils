@@ -32,11 +32,10 @@ contract LootBox is ERC721, Ownable {
         _;
     }
 
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        string memory _baseURI
-    ) ERC721(_name, _symbol) Ownable(msg.sender) {
+    constructor(string memory _name, string memory _symbol, string memory _baseURI)
+        ERC721(_name, _symbol)
+        Ownable(msg.sender)
+    {
         baseURI = _baseURI;
         controller = address(0);
     }
@@ -98,10 +97,11 @@ contract LootBox is ERC721, Ownable {
         return 8000 + randomOffset;
     }
 
-    function determineRarityFromEntropy(
-        bytes32 entropy,
-        uint256[5] memory rarityProbabilities
-    ) external pure returns (Rarity) {
+    function determineRarityFromEntropy(bytes32 entropy, uint256[5] memory rarityProbabilities)
+        external
+        pure
+        returns (Rarity)
+    {
         uint256 rarityRoll = uint256(entropy) % 10000;
         uint256 cumulative = 0;
         cumulative += rarityProbabilities[uint256(Rarity.COMMON)];
@@ -120,4 +120,4 @@ contract LootBox is ERC721, Ownable {
         uint256 finalRewardBips = (baseRewardBips * randomFactor) / 10000;
         return finalRewardBips;
     }
-} 
+}

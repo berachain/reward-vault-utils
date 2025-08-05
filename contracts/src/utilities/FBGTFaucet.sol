@@ -80,4 +80,4 @@ contract FBGTFaucet is Ownable {
     function getFBGTAddress() external view returns (address) {
         return address(fbgtToken);
     }
-} 
+}

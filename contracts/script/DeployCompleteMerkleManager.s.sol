@@ -30,13 +30,9 @@ contract DeployCompleteMerkleManager is Script {
         // Step 1: Deploy merkle manager using the factory
         console.log("\n--- Step 1: Deploy Merkle Manager ---");
         MerkleManagerFactory factory = MerkleManagerFactory(MERKLE_MANAGER_FACTORY);
-        
-        (
-            address manager,
-            address rewardVaultToken,
-            address fbgt,
-            address liquidBGTMinter
-        ) = factory.deployMerkleManager();
+
+        (address manager, address rewardVaultToken, address fbgt, address liquidBGTMinter) =
+            factory.deployMerkleManager();
 
         console.log("Merkle Manager deployed at:", manager);
         console.log("Reward Vault Token deployed at:", rewardVaultToken);
@@ -46,14 +42,14 @@ contract DeployCompleteMerkleManager is Script {
         // Step 2: Create reward vault using the reward vault factory
         console.log("\n--- Step 2: Create Reward Vault ---");
         IRewardVaultFactory rewardVaultFactory = IRewardVaultFactory(REWARD_VAULT_FACTORY);
-        
+
         address rewardVault = rewardVaultFactory.createRewardVault(rewardVaultToken);
         console.log("Reward Vault created at:", rewardVault);
 
         // Step 3: Initialize the merkle manager with the reward vault
         console.log("\n--- Step 3: Initialize Merkle Manager ---");
         RewardVaultManagerMerkle managerContract = RewardVaultManagerMerkle(manager);
-        
+
         managerContract.initialize(rewardVault);
         console.log("Merkle Manager initialized with reward vault");
 
@@ -77,4 +73,4 @@ contract DeployCompleteMerkleManager is Script {
 
         vm.stopBroadcast();
     }
-} 
+}
