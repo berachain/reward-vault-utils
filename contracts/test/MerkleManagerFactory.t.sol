@@ -13,7 +13,7 @@ contract MerkleManagerFactoryTest is Test {
     function setUp() public {
         // Deploy a mock reward vault factory
         mockRewardVaultFactory = address(0x123);
-        
+
         // Deploy the factory
         factory = new MerkleManagerFactory(mockRewardVaultFactory);
     }
@@ -30,12 +30,8 @@ contract MerkleManagerFactoryTest is Test {
 
     function test_DeployMerkleManager() public {
         // Deploy the merkle manager setup
-        (
-            address manager,
-            address rewardVaultToken,
-            address fbgt,
-            address liquidBGTMinter
-        ) = factory.deployMerkleManager();
+        (address manager, address rewardVaultToken, address fbgt, address liquidBGTMinter) =
+            factory.deployMerkleManager();
 
         // Verify all contracts were deployed
         assertTrue(manager != address(0), "Manager should be deployed");
@@ -47,8 +43,4 @@ contract MerkleManagerFactoryTest is Test {
         RewardVaultManagerMerkle managerContract = RewardVaultManagerMerkle(manager);
         assertEq(managerContract.owner(), address(this), "Manager ownership should be transferred to deployer");
     }
-
-
-
-
-} 
+}

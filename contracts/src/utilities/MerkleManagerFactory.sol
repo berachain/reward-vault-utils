@@ -58,12 +58,10 @@ contract MerkleManagerFactory is Owned {
     /// @return rewardVaultToken The address of the RewardVaultToken
     /// @return fbgt The address of the existing FBGT token
     /// @return liquidBGTMinter The address of the existing LiquidBGTMinter
-    function deployMerkleManager() external returns (
-        address manager,
-        address rewardVaultToken,
-        address fbgt,
-        address liquidBGTMinter
-    ) {
+    function deployMerkleManager()
+        external
+        returns (address manager, address rewardVaultToken, address fbgt, address liquidBGTMinter)
+    {
         // 1. Deploy RewardVaultManagerMerkle
         RewardVaultManagerMerkle managerContract = new RewardVaultManagerMerkle();
         manager = address(managerContract);
@@ -78,16 +76,6 @@ contract MerkleManagerFactory is Owned {
         // 4. Transfer ownership of the manager to the deployer
         managerContract.transferOwnership(msg.sender);
 
-        // Note: setLiquidBGTMinter will be called after reward vault is set via UI wizard
-
-        emit MerkleManagerDeployed(
-            manager,
-            fbgt,
-            liquidBGTMinter,
-            rewardVaultToken,
-            msg.sender
-        );
+        emit MerkleManagerDeployed(manager, fbgt, liquidBGTMinter, rewardVaultToken, msg.sender);
     }
-
-
-} 
+}

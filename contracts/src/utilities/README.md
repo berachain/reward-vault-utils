@@ -137,4 +137,6 @@ forge test --match-contract MerkleManagerFactoryTest
 Deploy using the provided script:
 ```bash
 forge script script/DeployMerkleManagerFactory.s.sol --rpc-url <RPC_URL> --broadcast
-``` 
+```
+
+ 

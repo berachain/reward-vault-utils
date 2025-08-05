@@ -19,4 +19,4 @@ contract OpenLootBox is Script {
 
         vm.stopBroadcast();
     }
-} 
+}

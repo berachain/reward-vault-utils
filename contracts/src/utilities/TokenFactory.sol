@@ -18,12 +18,7 @@ contract TokenFactory {
     /// @param totalSupply The total supply of the token
     /// @param owner The owner of the token
     event TokenCreated(
-        address indexed token,
-        string name,
-        string symbol,
-        uint8 decimals,
-        uint256 totalSupply,
-        address indexed owner
+        address indexed token, string name, string symbol, uint8 decimals, uint256 totalSupply, address indexed owner
     );
 
     // ============ Errors ============
@@ -41,23 +36,15 @@ contract TokenFactory {
     /// @param decimals The decimals of the token
     /// @param totalSupply The total supply of the token
     /// @return token The address of the created token
-    function createToken(
-        string memory name,
-        string memory symbol,
-        uint8 decimals,
-        uint256 totalSupply
-    ) external returns (address token) {
+    function createToken(string memory name, string memory symbol, uint8 decimals, uint256 totalSupply)
+        external
+        returns (address token)
+    {
         if (totalSupply == 0) revert ZeroTotalSupply();
         if (bytes(name).length == 0 || bytes(symbol).length == 0) revert EmptyNameOrSymbol();
 
         // Deploy the new token
-        FactoryToken newToken = new FactoryToken(
-            name,
-            symbol,
-            decimals,
-            totalSupply,
-            msg.sender
-        );
+        FactoryToken newToken = new FactoryToken(name, symbol, decimals, totalSupply, msg.sender);
 
         token = address(newToken);
 
@@ -77,14 +64,11 @@ contract FactoryToken is ERC20, Owned {
     /// @param decimals The decimals of the token
     /// @param totalSupply The total supply of the token
     /// @param owner The owner of the token
-    constructor(
-        string memory name,
-        string memory symbol,
-        uint8 decimals,
-        uint256 totalSupply,
-        address owner
-    ) ERC20(name, symbol, decimals) Owned(owner) {
+    constructor(string memory name, string memory symbol, uint8 decimals, uint256 totalSupply, address owner)
+        ERC20(name, symbol, decimals)
+        Owned(owner)
+    {
         // Mint the full supply to the owner
         _mint(owner, totalSupply);
     }
-} 
+}

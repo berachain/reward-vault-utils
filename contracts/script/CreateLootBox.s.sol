@@ -14,13 +14,13 @@ contract CreateLootBox is Script {
 
         // Generate a random number for this loot box
         bytes32 userRandomNumber = keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender));
-        
+
         // Get the required fee using default provider
         uint256 fee = lootBoxVault.getEntropyFee();
-        
+
         // Create the loot box
         uint64 sequenceNumber = lootBoxVault.createLootBox{value: fee}(userRandomNumber);
 
         vm.stopBroadcast();
     }
-} 
+}
