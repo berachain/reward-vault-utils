@@ -89,6 +89,28 @@ The factory was successfully deployed and tested with the following deployed con
     - `validateDeploymentParams()`: Validates rarity probabilities and rewards
     - `getConstructorArgs()`: Generates ABI-encoded constructor arguments
 
+### Real-Time Rewards Factory (Latest Deployment)
+
+#### RewardVaultManagerRealTimeFactory
+- **Address**: `0x6807ee246ee005fb984DBfCd2Fc484e043459Bb2` ✅ **DEPLOYED & VERIFIED**
+- **Contract**: [RewardVaultManagerRealTimeFactory.sol](../contracts/src/utilities/RewardVaultManagerRealTimeFactory.sol)
+- **Verification**: [View on Berascan](https://bepolia.beratrail.io/address/0x6807ee246ee005fb984dbfcd2fc484e043459bb2)
+- **Description**: Factory contract for deploying RewardVaultManagerRealTime contracts
+- **Features**:
+  - Deploys RewardVaultManagerRealTime instances
+  - Transfers ownership to deployer
+  - Returns manager and reward vault token addresses
+  - Enables real-time reward distribution with whitelisted distributors
+  - Integrates with liquid BGT minter for instant BGT distribution
+
+#### Test Deployment Results
+The factory was successfully deployed and tested:
+- **Factory**: `0x6807ee246ee005fb984DBfCd2Fc484e043459Bb2` ✅
+- **Test Manager**: `0x1b42805C4276e9390383AcA1690efa4Db033a7e7` ✅
+- **Test RewardVaultToken**: `0xB08E21bD25345e0495696b0fC9F229e8a8Ce71F0` ✅
+
+**Deployment Transaction**: [Latest deployment transaction](https://bepolia.beratrail.io/address/0x6807ee246ee005fb984dbfcd2fc484e043459bb2)
+
 #### Test Deployment Results
 The factories were successfully deployed and tested:
 - **LootBoxFactory**: `0xB4B94796903761F8eA7AD3A9531ED54077e9a9D6` ✅
