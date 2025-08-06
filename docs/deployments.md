@@ -92,9 +92,9 @@ The factory was successfully deployed and tested with the following deployed con
 ### Real-Time Rewards Factory (Latest Deployment)
 
 #### RewardVaultManagerRealTimeFactory
-- **Address**: `0x6807ee246ee005fb984DBfCd2Fc484e043459Bb2` ✅ **DEPLOYED & VERIFIED**
+- **Address**: `0x856Fe54612B1c6D4a4b992A9961D153d3bda1793` ✅ **DEPLOYED & VERIFIED**
 - **Contract**: [RewardVaultManagerRealTimeFactory.sol](../contracts/src/utilities/RewardVaultManagerRealTimeFactory.sol)
-- **Verification**: [View on Berascan](https://bepolia.beratrail.io/address/0x6807ee246ee005fb984dbfcd2fc484e043459bb2)
+- **Verification**: [View on Berascan](https://bepolia.beratrail.io/address/0x856fe54612b1c6d4a4b992a9961d153d3bda1793)
 - **Description**: Factory contract for deploying RewardVaultManagerRealTime contracts
 - **Features**:
   - Deploys RewardVaultManagerRealTime instances
@@ -105,11 +105,11 @@ The factory was successfully deployed and tested with the following deployed con
 
 #### Test Deployment Results
 The factory was successfully deployed and tested:
-- **Factory**: `0x6807ee246ee005fb984DBfCd2Fc484e043459Bb2` ✅
-- **Test Manager**: `0x1b42805C4276e9390383AcA1690efa4Db033a7e7` ✅
-- **Test RewardVaultToken**: `0xB08E21bD25345e0495696b0fC9F229e8a8Ce71F0` ✅
+- **Factory**: `0x856Fe54612B1c6D4a4b992A9961D153d3bda1793` ✅
+- **Test Manager**: `0x8f14749f97B2a3B7d02E4B526Dd873c027519649` ✅
+- **Test RewardVaultToken**: `0x9DC6496856FD98Be87B975CA14016e4C008E0F91` ✅
 
-**Deployment Transaction**: [Latest deployment transaction](https://bepolia.beratrail.io/address/0x6807ee246ee005fb984dbfcd2fc484e043459bb2)
+**Deployment Transaction**: [Latest deployment transaction](https://bepolia.beratrail.io/address/0x856fe54612b1c6d4a4b992a9961d153d3bda1793)
 
 #### Test Deployment Results
 The factories were successfully deployed and tested:
