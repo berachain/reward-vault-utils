@@ -62,7 +62,7 @@ The factory was successfully deployed and tested with the following deployed con
 #### LootBoxFactory
 - **Address**: `0xB4B94796903761F8eA7AD3A9531ED54077e9a9D6` ✅ **DEPLOYED & VERIFIED**
 - **Contract**: [LootBoxFactory.sol](../contracts/src/utilities/LootBoxFactory.sol)
-- **Verification**: [View on Berascan](https://bepolia.beratrail.io/address/0xb4b94796903761f8ea7ad3a9531ed54077e9a9d6)
+- **Verification**: [View on Berascan](https://testnet.berascan.com/address/0xb4b94796903761f8ea7ad3a9531ed54077e9a9d6)
 - **Transaction**: [0x9d0392d2690f4402a15e1a04516af6fc2f2ea45db36e2c4a04f1451ea615809e](https://testnet.berascan.com/tx/0x9d0392d2690f4402a15e1a04516af6fc2f2ea45db36e2c4a04f1451ea615809e)
 - **Description**: Factory contract for deploying LootBox NFT contracts
 - **Size**: 17,067 bytes ✅
@@ -74,7 +74,7 @@ The factory was successfully deployed and tested with the following deployed con
 #### RewardVaultLootBoxFactory
 - **Address**: `0x76dDA2D109F3570EbaCac4a1271a38a1a5d52D9B` ✅ **DEPLOYED & VERIFIED**
 - **Contract**: [RewardVaultLootBoxFactory.sol](../contracts/src/utilities/RewardVaultLootBoxFactory.sol)
-- **Verification**: [View on Berascan](https://bepolia.beratrail.io/address/0x76dda2d109f3570ebacac4a1271a38a1a5d52d9b)
+- **Verification**: [View on Berascan](https://testnet.berascan.com/address/0x76dda2d109f3570ebacac4a1271a38a1a5d52d9b)
 - **Transaction**: [0xebab8fdeb85c8a0f984d9677fddb795aee49d89315725bf92adbdad5bb65cffb](https://testnet.berascan.com/tx/0xebab8fdeb85c8a0f984d9677fddb795aee49d89315725bf92adbdad5bb65cffb)
 - **Description**: Parameter factory for RewardVaultLootBox deployment
 - **Size**: 2,547 bytes ✅ (ultra-lightweight)
@@ -94,7 +94,7 @@ The factory was successfully deployed and tested with the following deployed con
 #### RewardVaultManagerRealTimeFactory
 - **Address**: `0x6807ee246ee005fb984DBfCd2Fc484e043459Bb2` ✅ **DEPLOYED & VERIFIED**
 - **Contract**: [RewardVaultManagerRealTimeFactory.sol](../contracts/src/utilities/RewardVaultManagerRealTimeFactory.sol)
-- **Verification**: [View on Berascan](https://bepolia.beratrail.io/address/0x6807ee246ee005fb984dbfcd2fc484e043459bb2)
+- **Verification**: [View on Berascan](https://testnet.berascan.com/address/0x6807ee246ee005fb984dbfcd2fc484e043459bb2)
 - **Description**: Factory contract for deploying RewardVaultManagerRealTime contracts
 - **Features**:
   - Deploys RewardVaultManagerRealTime instances
@@ -109,7 +109,7 @@ The factory was successfully deployed and tested:
 - **Test Manager**: `0x1b42805C4276e9390383AcA1690efa4Db033a7e7` ✅
 - **Test RewardVaultToken**: `0xB08E21bD25345e0495696b0fC9F229e8a8Ce71F0` ✅
 
-**Deployment Transaction**: [Latest deployment transaction](https://bepolia.beratrail.io/address/0x6807ee246ee005fb984dbfcd2fc484e043459bb2)
+**Deployment Transaction**: [Latest deployment transaction](https://testnet.berascan.com/address/0x6807ee246ee005fb984dbfcd2fc484e043459bb2)
 
 #### Test Deployment Results
 The factories were successfully deployed and tested:
@@ -127,7 +127,7 @@ The factories were successfully deployed and tested:
 #### FBGTFaucet
 - **Address**: `0x2926F93c33D2198Be39aA90BFd06b857cdC8AB2D` ✅ **DEPLOYED & VERIFIED**
 - **Contract**: [FBGTFaucet.sol](../contracts/src/utilities/FBGTFaucet.sol)
-- **Verification**: [View on Berascan](https://bepolia.beratrail.io/address/0x2926f93c33d2198be39aa90bfd06b857cdc8ab2d)
+- **Verification**: [View on Berascan](https://testnet.berascan.com/address/0x2926f93c33d2198be39aa90bfd06b857cdc8ab2d)
 - **Transaction**: [0x4e2fbc426506ca81025560e063a94fe128fefc12152306ecb79b43b0c3fd64ea](https://testnet.berascan.com/tx/0x4e2fbc426506ca81025560e063a94fe128fefc12152306ecb79b43b0c3fd64ea)
 - **Description**: Simple faucet contract for distributing FBGT tokens
 - **Size**: 5,432 bytes ✅
