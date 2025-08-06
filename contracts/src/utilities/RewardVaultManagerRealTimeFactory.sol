@@ -18,10 +18,10 @@ contract RewardVaultManagerRealTimeFactory {
         RewardVaultManagerRealTime managerContract = new RewardVaultManagerRealTime();
         manager = address(managerContract);
         rewardVaultToken = address(managerContract.rewardVaultToken());
-        
+
         // Transfer ownership to the deployer
         managerContract.transferOwnership(msg.sender);
-        
+
         emit RealTimeManagerDeployed(manager, msg.sender);
     }
-} 
+}

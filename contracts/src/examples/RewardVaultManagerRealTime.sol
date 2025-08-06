@@ -26,11 +26,7 @@ contract RewardVaultManagerRealTime is RewardVaultManager {
     /// @param distributor The address that distributed the reward
     /// @param recipient The address that received the reward
     /// @param amount The amount of BGT distributed
-    event RealTimeRewardDistributed(
-        address indexed distributor,
-        address indexed recipient,
-        uint256 amount
-    );
+    event RealTimeRewardDistributed(address indexed distributor, address indexed recipient, uint256 amount);
 
     /// @notice Emitted when a real-time reward distribution fails due to insufficient balance
     /// @param distributor The address that attempted to distribute the reward
@@ -38,10 +34,7 @@ contract RewardVaultManagerRealTime is RewardVaultManager {
     /// @param requestedAmount The amount of BGT that was requested
     /// @param availableBalance The available balance at the time of the attempt
     event RealTimeRewardDistributionFailed(
-        address indexed distributor,
-        address indexed recipient,
-        uint256 requestedAmount,
-        uint256 availableBalance
+        address indexed distributor, address indexed recipient, uint256 requestedAmount, uint256 availableBalance
     );
 
     /// @notice Custom errors for better gas efficiency and error handling
@@ -70,10 +63,7 @@ contract RewardVaultManagerRealTime is RewardVaultManager {
     /// @dev Can only be called by whitelisted distributors
     /// @dev If liquid BGT minter not set, does nothing
     /// @dev If insufficient balance, emits failure event and does nothing
-    function distributeRealTimeReward(address recipient, uint256 amount) 
-        external 
-        onlyWhitelistedDistributor 
-    {
+    function distributeRealTimeReward(address recipient, uint256 amount) external onlyWhitelistedDistributor {
         if (recipient == address(0)) revert InvalidRecipient();
         if (amount == 0) revert InvalidAmount();
 
@@ -84,26 +74,16 @@ contract RewardVaultManagerRealTime is RewardVaultManager {
 
         // Check FBGT balance in the liquid BGT minter
         uint256 availableBalance = ERC20(liquidBGTToken).balanceOf(address(liquidBGTMinter));
-        
+
         if (amount > availableBalance) {
             // Emit failure event and do nothing
-            emit RealTimeRewardDistributionFailed(
-                msg.sender, 
-                recipient, 
-                amount, 
-                availableBalance
-            );
+            emit RealTimeRewardDistributionFailed(msg.sender, recipient, amount, availableBalance);
             return;
         }
 
         // Transfer FBGT directly from the liquid BGT minter to recipient
-        SafeTransferLib.safeTransferFrom(
-            ERC20(liquidBGTToken),
-            address(liquidBGTMinter),
-            recipient,
-            amount
-        );
+        SafeTransferLib.safeTransferFrom(ERC20(liquidBGTToken), address(liquidBGTMinter), recipient, amount);
 
         emit RealTimeRewardDistributed(msg.sender, recipient, amount);
     }
-} 
+}

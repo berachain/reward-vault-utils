@@ -13,7 +13,7 @@ contract RewardVaultManagerRealTimeTest is Test {
     RewardVaultToken public rewardVaultToken;
     FBGT public fbgtToken;
     LiquidBGTMinter public liquidBGTMinter;
-    
+
     address public owner = address(0x123);
     address public distributor = address(0x456);
     address public recipient = address(0x789);
@@ -27,7 +27,7 @@ contract RewardVaultManagerRealTimeTest is Test {
         vm.prank(owner);
         manager = new RewardVaultManagerRealTime();
         rewardVaultToken = manager.rewardVaultToken();
-        
+
         // Whitelist distributor
         vm.prank(owner);
         manager.setDistributorWhitelist(distributor, true);
@@ -41,11 +41,11 @@ contract RewardVaultManagerRealTimeTest is Test {
 
     function test_SetDistributorWhitelist() public {
         address newDistributor = address(0xDEF);
-        
+
         vm.prank(owner);
         manager.setDistributorWhitelist(newDistributor, true);
         assertTrue(manager.isWhitelistedDistributor(newDistributor));
-        
+
         vm.prank(owner);
         manager.setDistributorWhitelist(newDistributor, false);
         assertFalse(manager.isWhitelistedDistributor(newDistributor));
@@ -74,10 +74,10 @@ contract RewardVaultManagerRealTimeTest is Test {
         // Remove distributor from whitelist
         vm.prank(owner);
         manager.setDistributorWhitelist(distributor, false);
-        
+
         // Try to distribute - should fail
         vm.prank(distributor);
         vm.expectRevert(RewardVaultManagerRealTime.NotWhitelistedDistributor.selector);
         manager.distributeRealTimeReward(recipient, DISTRIBUTION_AMOUNT);
     }
-} 
+}
