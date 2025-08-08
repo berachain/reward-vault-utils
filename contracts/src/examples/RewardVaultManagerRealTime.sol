@@ -3,7 +3,6 @@ pragma solidity ^0.8.26;
 
 import {Owned} from "@solmate/auth/Owned.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {RewardVaultManager} from "../core/RewardVaultManager.sol";
 import {IRewardVault} from "../interfaces/IRewardVault.sol";
 import {ILiquidBGTMinter} from "../interfaces/ILiquidBGTMinter.sol";
@@ -12,8 +11,6 @@ import {ILiquidBGTMinter} from "../interfaces/ILiquidBGTMinter.sol";
 /// @notice Extends RewardVaultManager with real-time reward distribution
 /// @dev Allows whitelisted addresses to distribute rewards instantly using liquid BGT
 contract RewardVaultManagerRealTime is RewardVaultManager {
-    using SafeTransferLib for address;
-
     /// @notice Maps addresses to their whitelist status for real-time distribution
     mapping(address => bool) public isWhitelistedDistributor;
 
@@ -61,19 +58,19 @@ contract RewardVaultManagerRealTime is RewardVaultManager {
     /// @param recipient The address to receive the BGT reward
     /// @param amount The amount of BGT to distribute
     /// @dev Can only be called by whitelisted distributors
-    /// @dev If liquid BGT minter not set, does nothing
+    /// @dev If liquid BGT token not set, does nothing
     /// @dev If insufficient balance, emits failure event and does nothing
     function distributeRealTimeReward(address recipient, uint256 amount) external onlyWhitelistedDistributor {
         if (recipient == address(0)) revert InvalidRecipient();
         if (amount == 0) revert InvalidAmount();
 
-        // If liquid BGT minter not set, do nothing
-        if (address(liquidBGTMinter) == address(0)) {
+        // If liquid BGT token not set, do nothing
+        if (liquidBGTToken == address(0)) {
             return;
         }
 
-        // Check FBGT balance in the liquid BGT minter
-        uint256 availableBalance = ERC20(liquidBGTToken).balanceOf(address(liquidBGTMinter));
+        // Check FBGT balance in this contract
+        uint256 availableBalance = ERC20(liquidBGTToken).balanceOf(address(this));
 
         if (amount > availableBalance) {
             // Emit failure event and do nothing
@@ -81,8 +78,7 @@ contract RewardVaultManagerRealTime is RewardVaultManager {
             return;
         }
 
-        // Transfer FBGT directly from the liquid BGT minter to recipient
-        SafeTransferLib.safeTransferFrom(ERC20(liquidBGTToken), address(liquidBGTMinter), recipient, amount);
+        ERC20(liquidBGTToken).transfer(recipient, amount);
 
         emit RealTimeRewardDistributed(msg.sender, recipient, amount);
     }

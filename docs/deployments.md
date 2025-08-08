@@ -111,6 +111,22 @@ The factory was successfully deployed and tested:
 
 **Deployment Transaction**: [Latest deployment transaction](https://testnet.berascan.com/address/0x6807ee246ee005fb984dbfcd2fc484e043459bb2)
 
+### Bop It Game Contract
+
+#### BopIt
+- **Address**: `0x3cc7Dcc72c063A6F48b8491F7484CC9e7C33eF92` ✅ **DEPLOYED**
+- **Contract**: [BopIt.sol](../contracts/src/examples/BopIt.sol)
+- **Description**: Interactive game contract with multiple actions and cooldowns
+- **Features**:
+  - 5 different actions: bop, twist, pull, spin, flick
+  - Each action has different cooldown periods (30s to 3 minutes)
+  - Each action distributes different reward amounts (0.01 to 0.05 BERA)
+  - Integrates with real-time reward manager for instant BGT distribution
+  - Cooldown tracking per player per action
+  - View functions to check remaining cooldown time
+
+**Deployment Transaction**: [Latest deployment transaction](https://testnet.berascan.com/address/0x3cc7dcc72c063a6f48b8491f7484cc9e7c33ef92)
+
 #### Test Deployment Results
 The factories were successfully deployed and tested:
 - **LootBoxFactory**: `0xB4B94796903761F8eA7AD3A9531ED54077e9a9D6` ✅
