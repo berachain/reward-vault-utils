@@ -31,13 +31,13 @@ contract DeployCompleteMerkleManager is Script {
         console.log("\n--- Step 1: Deploy Merkle Manager ---");
         MerkleManagerFactory factory = MerkleManagerFactory(MERKLE_MANAGER_FACTORY);
 
-        (address manager, address rewardVaultToken, address fbgt, address liquidBGTMinter) =
+        (address manager, address rewardVaultToken) =
             factory.deployMerkleManager();
 
         console.log("Merkle Manager deployed at:", manager);
         console.log("Reward Vault Token deployed at:", rewardVaultToken);
-        console.log("Using existing FBGT token at:", fbgt);
-        console.log("Using existing Liquid BGT Minter at:", liquidBGTMinter);
+        console.log("Using existing FBGT token at:", FBGT_TOKEN);
+        console.log("Using existing Liquid BGT Minter at:", LIQUID_BGT_MINTER);
 
         // Step 2: Create reward vault using the reward vault factory
         console.log("\n--- Step 2: Create Reward Vault ---");
@@ -46,16 +46,16 @@ contract DeployCompleteMerkleManager is Script {
         address rewardVault = rewardVaultFactory.createRewardVault(rewardVaultToken);
         console.log("Reward Vault created at:", rewardVault);
 
-        // Step 3: Initialize the merkle manager with the reward vault
-        console.log("\n--- Step 3: Initialize Merkle Manager ---");
+        // Step 3: Register the reward vault with the merkle manager
+        console.log("\n--- Step 3: Register Reward Vault ---");
         RewardVaultManagerMerkle managerContract = RewardVaultManagerMerkle(manager);
 
-        managerContract.initialize(rewardVault);
-        console.log("Merkle Manager initialized with reward vault");
+        managerContract.registerRewardVault(rewardVault);
+        console.log("Reward vault registered with merkle manager");
 
         // Step 4: Set up liquid BGT minter integration
         console.log("\n--- Step 4: Configure Liquid BGT Integration ---");
-        managerContract.setLiquidBGTMinter(liquidBGTMinter, fbgt);
+        managerContract.setLiquidBGTMinter(LIQUID_BGT_MINTER, FBGT_TOKEN);
         console.log("Liquid BGT minter configured");
 
         // Step 5: Verify the complete setup

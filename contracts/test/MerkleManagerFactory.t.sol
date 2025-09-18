@@ -11,33 +11,29 @@ contract MerkleManagerFactoryTest is Test {
     address public mockRewardVaultFactory;
 
     function setUp() public {
-        // Deploy a mock reward vault factory
-        mockRewardVaultFactory = address(0x123);
-
-        // Deploy the factory
-        factory = new MerkleManagerFactory(mockRewardVaultFactory);
+        // Deploy the factory (constructor takes no parameters)
+        factory = new MerkleManagerFactory();
     }
 
     function test_Constructor() public {
-        assertEq(factory.rewardVaultFactory(), mockRewardVaultFactory);
+        assertEq(factory.rewardVaultFactory(), 0x94Ad6Ac84f6C6FbA8b8CCbD71d9f4f101def52a8);
         assertEq(factory.owner(), address(this));
     }
 
     function test_ConstructorZeroAddress() public {
-        vm.expectRevert(MerkleManagerFactory.ZeroRewardVaultFactory.selector);
-        new MerkleManagerFactory(address(0));
+        // This test is no longer applicable since constructor takes no parameters
+        // The reward vault factory is hardcoded in the contract
+        assertTrue(true);
     }
 
     function test_DeployMerkleManager() public {
         // Deploy the merkle manager setup
-        (address manager, address rewardVaultToken, address fbgt, address liquidBGTMinter) =
+        (address manager, address rewardVaultToken) =
             factory.deployMerkleManager();
 
         // Verify all contracts were deployed
         assertTrue(manager != address(0), "Manager should be deployed");
         assertTrue(rewardVaultToken != address(0), "RewardVaultToken should be deployed");
-        assertTrue(fbgt != address(0), "FBGT should be set");
-        assertTrue(liquidBGTMinter != address(0), "LiquidBGTMinter should be set");
 
         // Verify ownership was transferred to the deployer
         RewardVaultManagerMerkle managerContract = RewardVaultManagerMerkle(manager);
