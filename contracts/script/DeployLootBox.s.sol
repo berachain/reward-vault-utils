@@ -17,7 +17,7 @@ contract DeployRewardVaultLootBox is Script {
     address public constant FBGT_TOKEN = 0x4ed091c61ddb2b2Dc69D057284791FeD9d640ece;
 
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        uint256 deployerPrivateKey = vm.envUint("RV_UTILS_PK");
         vm.startBroadcast(deployerPrivateKey);
 
         // Set actual entropy contract and provider addresses for Berachain Bepolia testnet

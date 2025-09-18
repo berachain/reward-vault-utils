@@ -29,3 +29,4 @@ contract DeployMerkleManagerFactory is Script {
         vm.stopBroadcast();
     }
 }
+
