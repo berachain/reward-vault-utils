@@ -4,17 +4,17 @@ on:
   push:
     paths:
       - 'contracts/**'
-      - '.github/workflows/contracts-ci.yml'
+      - '.github/workflows/ci.yml'
       - 'commitlint.config.js'
       - 'package.json'
-      - '.husky/**'
+      - 'pnpm-lock.yaml'
   pull_request:
     paths:
       - 'contracts/**'
-      - '.github/workflows/contracts-ci.yml'
+      - '.github/workflows/ci.yml'
       - 'commitlint.config.js'
       - 'package.json'
-      - '.husky/**'
+      - 'pnpm-lock.yaml'
 
 jobs:
   lint-commits:
