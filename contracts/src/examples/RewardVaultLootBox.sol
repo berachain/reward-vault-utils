@@ -189,8 +189,14 @@ contract RewardVaultLootBox is RewardVaultEntropy {
 
         // Transfer rewards if any
         if (item.rewardBips > 0 && item.rewardToken != address(0)) {
-            // trusted: ERC20 token contract
-            ERC20(item.rewardToken).transfer(msg.sender, rewardAmount);
+            if (address(liquidBGTMinter) != address(0)) {
+                // Liquid BGT minter is set - transfer liquid BGT tokens
+                // trusted: ERC20 token contract
+                ERC20(item.rewardToken).transfer(msg.sender, rewardAmount);
+            } else {
+                // No liquid BGT minter - claim partial BGT from reward vault
+                _claimPartialBGTForTarget(address(this), msg.sender, rewardAmount);
+            }
         }
 
         emit LootBoxClaimed(tokenId, msg.sender, rewardAmount, item.rewardToken);
@@ -240,18 +246,30 @@ contract RewardVaultLootBox is RewardVaultEntropy {
         emit LiquidBGTMinterSet(address(0), _liquidBGTToken);
     }
 
-    /// @notice Calculate the actual reward amount at claim time based on current contract balance
+    /// @notice Calculate the actual reward amount at claim time based on available rewards
     /// @param rarity The rarity of the loot box (unused but kept for interface consistency)
     /// @param rewardBips The reward bips for the loot box
     /// @return The calculated reward amount in tokens
-    function _calculateRewardAmount(LootBox.Rarity rarity, uint256 rewardBips) internal view returns (uint256) {
+    /// @dev If liquid BGT minter is set: checks liquid BGT balance post-mint
+    /// @dev If no liquid BGT minter: checks earned amount from reward vault
+    function _calculateRewardAmount(LootBox.Rarity rarity, uint256 rewardBips) internal returns (uint256) {
         // Use rarity to silence linter warning
         rarity;
-        // Get the available liquid BGT balance in this contract
+        
         uint256 availableBalance = 0;
-        if (liquidBGTToken != address(0)) {
-            // trusted: ERC20 token contract
-            availableBalance = ERC20(liquidBGTToken).balanceOf(address(this));
+        
+        if (address(liquidBGTMinter) != address(0)) {
+            // Liquid BGT minter is set - mint liquid BGT and check balance post-mint
+            mintLiquidBGT();
+            if (liquidBGTToken != address(0)) {
+                // trusted: ERC20 token contract
+                availableBalance = ERC20(liquidBGTToken).balanceOf(address(this));
+            }
+        } else {
+            // No liquid BGT minter - check earned amount from reward vault
+            if (address(rewardVault) != address(0)) {
+                availableBalance = rewardVault.earned(address(this));
+            }
         }
 
         if (availableBalance == 0) return 0;
