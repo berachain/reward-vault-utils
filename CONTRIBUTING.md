@@ -1,26 +1,24 @@
 # Contributing to Reward Vault Utilities
 
-Thank you for your interest in contributing to Reward Vault Utilities! This document provides guidelines and information for contributors.
+This document provides guidelines for contributing to Reward Vault Utilities.
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- Node.js 18+
 - Foundry
 - Git
-- Basic knowledge of Solidity and TypeScript
+- Basic knowledge of Solidity
 
 ### Development Setup
 1. Fork the repository
 2. Clone your fork locally
 3. Install dependencies:
    ```bash
-   pnpm install
    cd contracts && forge install && cd ..
    ```
 4. Create a feature branch: `git checkout -b feature/your-feature-name`
 
-## 📋 Contribution Guidelines
+## Contribution Guidelines
 
 ### Code Style
 
@@ -31,13 +29,6 @@ Thank you for your interest in contributing to Reward Vault Utilities! This docu
 - Keep functions focused and concise
 - Use custom errors instead of require statements with strings
 
-#### TypeScript
-- Follow the [TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)
-- Use meaningful variable and function names
-- Add JSDoc comments for public functions
-- Prefer const over let when possible
-- Use async/await over Promises
-
 ### Testing
 
 #### Smart Contracts
@@ -47,12 +38,6 @@ Thank you for your interest in contributing to Reward Vault Utilities! This docu
 - Aim for high test coverage
 - Run tests before submitting: `forge test -vv`
 
-#### Indexer (if applicable)
-- Write unit tests for new features
-- Test API endpoints
-- Ensure database migrations work correctly
-- Run tests: `pnpm test`
-
 ### Documentation
 
 - Update relevant documentation files
@@ -60,19 +45,19 @@ Thank you for your interest in contributing to Reward Vault Utilities! This docu
 - Update README if adding new features
 - Include examples for new functionality
 
-## 🔄 Pull Request Process
+## Pull Request Process
 
-1. **Create a feature branch** from the latest main branch
-2. **Make your changes** following the code style guidelines
-3. **Write tests** for new functionality
-4. **Update documentation** as needed
-5. **Run all tests** to ensure nothing is broken
-6. **Commit your changes** with clear, descriptive commit messages
-7. **Push to your fork** and create a Pull Request
+1. Create a feature branch from the latest main branch
+2. Make your changes following the code style guidelines
+3. Write tests for new functionality
+4. Update documentation as needed
+5. Run all tests to ensure nothing is broken
+6. Commit your changes with clear, descriptive commit messages
+7. Push to your fork and create a Pull Request
 
 ### Commit Message Format
 
-We use [conventional commits](https://www.conventionalcommits.org/) for consistent and meaningful commit messages. This helps with automated changelog generation and makes the project history more readable.
+We use [conventional commits](https://www.conventionalcommits.org/) for consistent commit messages.
 
 #### Format
 ```
@@ -103,33 +88,33 @@ type(scope): description
 
 ### Pull Request Guidelines
 
-- **Title**: Clear, descriptive title
-- **Description**: Explain what the PR does and why
-- **Related Issues**: Link to any related issues
-- **Testing**: Describe how you tested the changes
-- **Breaking Changes**: Note any breaking changes
+- Title: Clear, descriptive title
+- Description: Explain what the PR does and why
+- Related Issues: Link to any related issues
+- Testing: Describe how you tested the changes
+- Breaking Changes: Note any breaking changes
 
-## 🐛 Reporting Issues
+## Reporting Issues
 
-When reporting issues, please include:
+When reporting issues, include:
 
-- **Description**: Clear description of the problem
-- **Steps to Reproduce**: Detailed steps to reproduce the issue
-- **Expected Behavior**: What you expected to happen
-- **Actual Behavior**: What actually happened
-- **Environment**: OS, Node.js version, Foundry version
-- **Screenshots**: If applicable
+- Description: Clear description of the problem
+- Steps to Reproduce: Detailed steps to reproduce the issue
+- Expected Behavior: What you expected to happen
+- Actual Behavior: What actually happened
+- Environment: OS, Foundry version
+- Screenshots: If applicable
 
-## 💡 Feature Requests
+## Feature Requests
 
 When suggesting new features:
 
-- **Description**: Clear description of the feature
-- **Use Case**: Explain why this feature would be useful
-- **Implementation Ideas**: If you have ideas on how to implement it
-- **Priority**: Indicate if this is a high, medium, or low priority
+- Description: Clear description of the feature
+- Use Case: Explain why this feature would be useful
+- Implementation Ideas: If you have ideas on how to implement it
+- Priority: Indicate if this is a high, medium, or low priority
 
-## 🏷️ Issue Labels
+## Issue Labels
 
 We use the following labels to categorize issues:
 
@@ -140,7 +125,7 @@ We use the following labels to categorize issues:
 - `help wanted`: Extra attention is needed
 - `question`: Further information is requested
 
-## 🤝 Code Review
+## Code Review
 
 All contributions require review before merging. Reviewers will check for:
 
@@ -150,16 +135,14 @@ All contributions require review before merging. Reviewers will check for:
 - Security considerations
 - Performance implications
 
-## 📄 License
+## License
 
 By contributing to Reward Vault Utilities, you agree that your contributions will be licensed under the MIT License.
 
-## 🆘 Need Help?
+## Need Help?
 
 If you need help with contributing:
 
 - Check existing issues and pull requests
-- Join our community discussions
-- Ask questions in issues with the `question` label
-
-Thank you for contributing to Reward Vault Utilities! 🎉 
+- Join community discussions
+- Ask questions in issues with the `question` label 
