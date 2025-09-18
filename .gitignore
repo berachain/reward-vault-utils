@@ -1,7 +1,6 @@
 # Foundry
 out/
 cache/
-**/lib
 **/broadcast/
 
 # Node.js
