@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  contracts:
+    name: Build Contracts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Build contracts
+        run: |
+          cd contracts
+          forge build
+
+      - name: Run tests
+        run: |
+          cd contracts
+          forge test
+
+  indexer:
+    name: Build Indexer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm@10.11.0
+
+      - name: Install dependencies
+        run: |
+          cd indexer
+          pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: |
+          cd indexer
+          pnpm prisma generate
+
+      - name: Build indexer
+        run: |
+          cd indexer
+          pnpm run build
+
+      - name: Run tests
+        run: |
+          cd indexer
+          pnpm run test
