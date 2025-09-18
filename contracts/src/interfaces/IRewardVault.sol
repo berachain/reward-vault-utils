@@ -47,6 +47,7 @@ interface IRewardVault {
     // Mutative
     function exit(address recipient) external;
     function getReward(address account, address recipient) external returns (uint256);
+    function getPartialReward(address account, address recipient, uint256 amount) external;
     function stake(uint256 amount) external;
     function delegateStake(address account, uint256 amount) external;
     function withdraw(uint256 amount) external;

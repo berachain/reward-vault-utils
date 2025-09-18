@@ -114,4 +114,20 @@ contract RewardVaultManager is Owned {
         emit TokensMinted(liquidBGTToken, amount);
         return amount;
     }
+
+    /// @notice Claims partial BGT rewards from the underlying reward vault for a target account
+    /// @param account The account to claim rewards for
+    /// @param recipient The address to send the rewards to
+    /// @param amount The amount of BGT rewards to claim
+    /// @dev Can only be called by the owner
+    /// @dev Requires a reward vault to be registered
+    function claimPartialBGTForTarget(
+        address account,
+        address recipient,
+        uint256 amount
+    ) external onlyOwner {
+        if (address(rewardVault) == address(0)) revert InvalidRewardVault();
+        
+        rewardVault.getPartialReward(account, recipient, amount);
+    }
 }
