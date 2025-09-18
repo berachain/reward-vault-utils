@@ -1,54 +1,50 @@
 # Reward Vault Utilities
 
-A toolkit for building reward systems on Berachain with loot boxes, merkle distributions, and real-time rewards.
+Smart contracts and tools for building reward distribution systems on Berachain.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Berachain](https://img.shields.io/badge/Built%20for-Berachain-blue)](https://berachain.com)
 
-> ⚠️ **Experimental Software**: This project is in active development and has not been audited. Use at your own risk. Not recommended for production use without thorough security review.
+**Warning**: This software is experimental and unaudited. Use at your own risk.
 
-## What's Here
+## Components
 
-This repo contains smart contracts and tools for creating reward systems on Berachain. We've built:
+This repository contains:
 
 - **Loot Box System** - NFT-based rewards with Pyth entropy for randomness
 - **Merkle Distributions** - Gas-efficient batch reward distribution  
 - **Real-Time Rewards** - Instant reward distribution and claiming
 
-Everything is deployed and tested on Berachain Bepolia testnet.
+All contracts are deployed and tested on Berachain Bepolia testnet.
 
 ## Project Structure
 
 ```
-competition-vault/
+reward-vault-utils/
 ├── contracts/                 # Solidity contracts
 │   ├── src/
-│   │   ├── core/             # Base reward vault contracts
-│   │   ├── examples/         # LootBox, FBGT, Button implementations
+│   │   ├── core/             # Core reward vault contracts
+│   │   ├── examples/         # Example implementations
 │   │   ├── interfaces/       # Contract interfaces
-│   │   └── utilities/        # Factories and utilities
+│   │   └── utilities/        # Factory contracts
 │   ├── script/               # Deployment scripts
 │   └── test/                 # Contract tests
-├── docs/                     # Documentation and guides
-│   ├── deployments.md        # Deployed contract addresses
-│   └── reward-vault-utils-playground/  # UI integration examples
-└── indexer/                  # NestJS backend for indexing
+└── docs/                     # Documentation
+    ├── deployments.md        # Contract addresses
+    └── reward-vault-utils-playground/  # Integration examples
 ```
 
 ## Quick Start
 
 ### Prerequisites
-- Node.js 18+
 - Foundry
 - Berachain Bepolia testnet access
 
 ### Setup
 
 ```bash
-# Clone and install
+# Clone repository
 git clone https://github.com/berachain/reward-vault-utils.git
 cd reward-vault-utils
-pnpm install
 
 # Install Foundry dependencies
 cd contracts && forge install && cd ..
@@ -57,7 +53,7 @@ cd contracts && forge install && cd ..
 ### Deploy Contracts
 
 ```bash
-# Set environment
+# Set environment variables
 cp .env.example .env
 # Add your private key and RPC URL
 
@@ -101,17 +97,13 @@ forge build
 
 ## Contributing
 
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/new-thing`)
+1. Fork the repository
+2. Create a feature branch
 3. Make your changes
 4. Run tests: `cd contracts && forge test`
-5. Commit with conventional commits: `git commit -m 'feat: add new thing'`
-6. Push and open a PR
+5. Commit with conventional commits
+6. Push and open a pull request
 
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
-
----
-
-> ⚠️ **Disclaimer**: This software is provided "as is" without warranty of any kind. Use at your own risk. The authors are not responsible for any losses or damages resulting from the use of this software.
