@@ -105,7 +105,7 @@ contract RewardVaultManager is Owned {
     /// @notice Mints liquid BGT tokens for BGT rewards
     /// @return The amount of liquid BGT minted
     /// @dev Can only be called if a liquid BGT minter is set
-    function mintLiquidBGT() external returns (uint256) {
+    function mintLiquidBGT() public returns (uint256) {
         if (address(liquidBGTMinter) == address(0)) {
             return 0;
         }
@@ -126,6 +126,19 @@ contract RewardVaultManager is Owned {
         address recipient,
         uint256 amount
     ) external onlyOwner {
+        _claimPartialBGTForTarget(account, recipient, amount);
+    }
+
+    /// @notice Internal function to claim partial BGT rewards
+    /// @param account The account to claim rewards for
+    /// @param recipient The address to send the rewards to
+    /// @param amount The amount of BGT rewards to claim
+    /// @dev Internal version that can be called by child contracts
+    function _claimPartialBGTForTarget(
+        address account,
+        address recipient,
+        uint256 amount
+    ) internal {
         if (address(rewardVault) == address(0)) revert InvalidRewardVault();
         
         rewardVault.getPartialReward(account, recipient, amount);

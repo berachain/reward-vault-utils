@@ -58,27 +58,41 @@ contract RewardVaultManagerRealTime is RewardVaultManager {
     /// @param recipient The address to receive the BGT reward
     /// @param amount The amount of BGT to distribute
     /// @dev Can only be called by whitelisted distributors
-    /// @dev If liquid BGT token not set, does nothing
-    /// @dev If insufficient balance, emits failure event and does nothing
+    /// @dev If liquid BGT minter is set: mints liquid BGT, checks balance post-mint, then transfers
+    /// @dev If no liquid BGT minter: checks earned amount from reward vault, then claims partial BGT
+    /// @dev If insufficient balance/earned amount, emits failure event and does nothing
     function distributeRealTimeReward(address recipient, uint256 amount) external onlyWhitelistedDistributor {
         if (recipient == address(0)) revert InvalidRecipient();
         if (amount == 0) revert InvalidAmount();
 
-        // If liquid BGT token not set, do nothing
-        if (liquidBGTToken == address(0)) {
-            return;
+        uint256 availableAmount;
+
+        if (address(liquidBGTMinter) != address(0)) {
+            // Liquid BGT minter is set - mint liquid BGT and check balance post-mint
+            mintLiquidBGT();
+            availableAmount = ERC20(liquidBGTToken).balanceOf(address(this));
+            
+            if (amount > availableAmount) {
+                // Emit failure event and do nothing
+                emit RealTimeRewardDistributionFailed(msg.sender, recipient, amount, availableAmount);
+                return;
+            }
+
+            // Transfer liquid BGT tokens
+            ERC20(liquidBGTToken).transfer(recipient, amount);
+        } else {
+            // No liquid BGT minter - check earned amount from reward vault
+            availableAmount = rewardVault.earned(address(this));
+            
+            if (amount > availableAmount) {
+                // Emit failure event and do nothing
+                emit RealTimeRewardDistributionFailed(msg.sender, recipient, amount, availableAmount);
+                return;
+            }
+
+            // Claim partial BGT using the internal function
+            _claimPartialBGTForTarget(address(this), recipient, amount);
         }
-
-        // Check FBGT balance in this contract
-        uint256 availableBalance = ERC20(liquidBGTToken).balanceOf(address(this));
-
-        if (amount > availableBalance) {
-            // Emit failure event and do nothing
-            emit RealTimeRewardDistributionFailed(msg.sender, recipient, amount, availableBalance);
-            return;
-        }
-
-        ERC20(liquidBGTToken).transfer(recipient, amount);
 
         emit RealTimeRewardDistributed(msg.sender, recipient, amount);
     }
