@@ -37,9 +37,6 @@ contract RewardVaultManagerMerkle is RewardVaultManager {
     /// @notice Tracks the total amount of tokens allocated
     uint256 public totalAllocatedTokens;
 
-    /// @notice Whether the contract has been initialized
-    bool public initialized;
-
     /// @notice Emitted when a new token allocation is created
     /// @param merkleRoot The merkle root of the allocation
     /// @param allocationAmount The amount of tokens allocated
@@ -53,30 +50,11 @@ contract RewardVaultManagerMerkle is RewardVaultManager {
     event TokenClaimed(bytes32 indexed merkleRoot, address indexed user, uint256 amount);
 
     /// @notice Custom errors for better gas efficiency and error handling
-    error AlreadyInitialized();
-    error NotInitialized();
     error InvalidAmount();
     error InvalidMerkleProof();
     error AlreadyClaimed();
     error AllocationExists();
     error InvalidRewardToken();
-
-    /// @notice Initializes the contract by registering the reward vault and staking a reward vault token
-    /// @dev Can only be called once, after reward vault is deployed
-    function initialize(address _rewardVault) external onlyOwner {
-        if (initialized) revert AlreadyInitialized();
-        if (_rewardVault == address(0)) revert NotInitialized();
-
-        IRewardVault vault = IRewardVault(_rewardVault);
-        if (vault.stakeToken() != address(rewardVaultToken)) revert InvalidAmount();
-        rewardVault = vault;
-
-        // Mint one token and stake it permanently
-        rewardVaultToken.approve(address(rewardVault), type(uint256).max);
-        rewardVault.stake(1 ether);
-
-        initialized = true;
-    }
 
     /// @notice Creates a new token allocation with a merkle root
     /// @param merkleRoot The merkle root of the allocation
@@ -84,7 +62,7 @@ contract RewardVaultManagerMerkle is RewardVaultManager {
     /// @param rewardToken The token that will be used for rewards
     /// @dev The allocation amount must be available in minted tokens
     function createAllocation(bytes32 merkleRoot, uint256 allocationAmount, address rewardToken) external onlyOwner {
-        if (!initialized) revert NotInitialized();
+        if (address(rewardVault) == address(0)) revert InvalidRewardVault();
         if (tokenAllocations[merkleRoot].allocationAmount != 0) revert AllocationExists();
         if (allocationAmount == 0) revert InvalidAmount();
         if (rewardToken == address(0)) revert InvalidRewardToken();

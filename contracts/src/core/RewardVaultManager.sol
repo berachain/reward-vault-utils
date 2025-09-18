@@ -69,6 +69,7 @@ contract RewardVaultManager is Owned {
     /// @param _rewardVault The address of the reward vault to register
     /// @dev The reward vault must use the reward vault token as its staking token
     /// @dev Can only be called once
+    /// @dev Automatically approves and stakes 1 token to the reward vault
     function registerRewardVault(address _rewardVault) external onlyOwner {
         if (address(rewardVault) != address(0)) revert RewardVaultAlreadySet();
         if (_rewardVault == address(0)) revert InvalidRewardVault();
@@ -77,6 +78,11 @@ contract RewardVaultManager is Owned {
         if (vault.stakeToken() != address(rewardVaultToken)) revert InvalidRewardVault();
 
         rewardVault = vault;
+
+        // Approve and stake 1 token to the reward vault
+        rewardVaultToken.approve(address(rewardVault), type(uint256).max);
+        rewardVault.stake(1 ether);
+
         emit RewardVaultRegistered(_rewardVault);
     }
 

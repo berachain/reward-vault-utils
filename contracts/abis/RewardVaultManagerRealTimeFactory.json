@@ -1,0 +1,39 @@
+[
+  {
+    "type": "function",
+    "name": "deployRealTimeManager",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "manager",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "rewardVaultToken",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "RealTimeManagerDeployed",
+    "inputs": [
+      {
+        "name": "manager",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "deployer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  }
+]
