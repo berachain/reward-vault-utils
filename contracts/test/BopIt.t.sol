@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {BopIt} from "../src/examples/BopIt.sol";
 import {RewardVaultManagerRealTime} from "../src/examples/RewardVaultManagerRealTime.sol";
 
@@ -23,7 +23,7 @@ contract BopItTest is Test {
         manager.setDistributorWhitelist(address(bopIt), true);
     }
 
-    function test_Constructor() public {
+    function test_Constructor() public view {
         assertEq(address(bopIt.rewardManager()), address(manager));
         assertEq(bopIt.owner(), owner);
     }

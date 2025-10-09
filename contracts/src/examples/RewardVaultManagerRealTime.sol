@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {Owned} from "@solmate/auth/Owned.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {RewardVaultManager} from "../core/RewardVaultManager.sol";
-import {IRewardVault} from "../interfaces/IRewardVault.sol";
-import {ILiquidBGTMinter} from "../interfaces/ILiquidBGTMinter.sol";
 
 /// @title RewardVaultManagerRealTime
 /// @notice Extends RewardVaultManager with real-time reward distribution
@@ -70,8 +67,8 @@ contract RewardVaultManagerRealTime is RewardVaultManager {
         if (address(liquidBGTMinter) != address(0)) {
             // Liquid BGT minter is set - mint liquid BGT and check balance post-mint
             mintLiquidBGT();
-            availableAmount = ERC20(liquidBGTToken).balanceOf(address(this));
-            
+            availableAmount = IERC20(liquidBGTToken).balanceOf(address(this));
+
             if (amount > availableAmount) {
                 // Emit failure event and do nothing
                 emit RealTimeRewardDistributionFailed(msg.sender, recipient, amount, availableAmount);
@@ -79,11 +76,16 @@ contract RewardVaultManagerRealTime is RewardVaultManager {
             }
 
             // Transfer liquid BGT tokens
-            ERC20(liquidBGTToken).transfer(recipient, amount);
+            bool success = IERC20(liquidBGTToken).transfer(recipient, amount);
+            if (!success) {
+                emit RealTimeRewardDistributionFailed(msg.sender, recipient, amount, availableAmount);
+                return;
+            }
+
         } else {
             // No liquid BGT minter - check earned amount from reward vault
             availableAmount = rewardVault.earned(address(this));
-            
+
             if (amount > availableAmount) {
                 // Emit failure event and do nothing
                 emit RealTimeRewardDistributionFailed(msg.sender, recipient, amount, availableAmount);

@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 // Run this after sending FBGT to the RewardVaultLootBox contract.
 
-import {Script, console} from "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 import {RewardVaultLootBox} from "../src/examples/RewardVaultLootBox.sol";
 
 contract OpenLootBox is Script {

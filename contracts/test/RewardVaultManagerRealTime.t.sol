@@ -33,7 +33,7 @@ contract RewardVaultManagerRealTimeTest is Test {
         manager.setDistributorWhitelist(distributor, true);
     }
 
-    function test_Constructor() public {
+    function test_Constructor() public view {
         assertEq(manager.owner(), owner);
         assertEq(address(manager.rewardVaultToken()), address(rewardVaultToken));
         // Note: liquidBGTToken will be address(0) since minter not set
@@ -85,22 +85,22 @@ contract RewardVaultManagerRealTimeTest is Test {
         // Setup liquid BGT minter and token
         fbgtToken = new FBGT();
         MockLiquidBGTMinter mockMinter = new MockLiquidBGTMinter(address(fbgtToken));
-        
+
         // Register reward vault and set liquid BGT minter
         MockRewardVault mockVault = new MockRewardVault(address(rewardVaultToken));
         vm.prank(owner);
         manager.registerRewardVault(address(mockVault));
-        
+
         vm.prank(owner);
         manager.setLiquidBGTMinter(address(mockMinter), address(fbgtToken));
-        
+
         // Give some FBGT to the manager for testing
         fbgtToken.mint(address(manager), DISTRIBUTION_AMOUNT);
-        
+
         // Distribute reward
         vm.prank(distributor);
         manager.distributeRealTimeReward(recipient, DISTRIBUTION_AMOUNT);
-        
+
         // Check that recipient received the tokens
         assertEq(fbgtToken.balanceOf(recipient), DISTRIBUTION_AMOUNT);
     }
@@ -109,17 +109,17 @@ contract RewardVaultManagerRealTimeTest is Test {
         // Setup liquid BGT minter and token
         fbgtToken = new FBGT();
         MockLiquidBGTMinter mockMinter = new MockLiquidBGTMinter(address(fbgtToken));
-        
+
         // Register reward vault and set liquid BGT minter
         MockRewardVault mockVault = new MockRewardVault(address(rewardVaultToken));
         vm.prank(owner);
         manager.registerRewardVault(address(mockVault));
-        
+
         vm.prank(owner);
         manager.setLiquidBGTMinter(address(mockMinter), address(fbgtToken));
-        
+
         // Don't give any FBGT to the manager
-        
+
         // Try to distribute more than available
         vm.prank(distributor);
         vm.expectEmit(true, true, true, true);
@@ -127,7 +127,7 @@ contract RewardVaultManagerRealTimeTest is Test {
             distributor, recipient, DISTRIBUTION_AMOUNT, 0
         );
         manager.distributeRealTimeReward(recipient, DISTRIBUTION_AMOUNT);
-        
+
         // Check that recipient didn't receive any tokens
         assertEq(fbgtToken.balanceOf(recipient), 0);
     }
@@ -137,14 +137,14 @@ contract RewardVaultManagerRealTimeTest is Test {
         MockRewardVault mockVault = new MockRewardVault(address(rewardVaultToken));
         vm.prank(owner);
         manager.registerRewardVault(address(mockVault));
-        
+
         // Set up mock vault to return earned amount
         mockVault.setEarnedAmount(DISTRIBUTION_AMOUNT);
-        
+
         // Distribute reward
         vm.prank(distributor);
         manager.distributeRealTimeReward(recipient, DISTRIBUTION_AMOUNT);
-        
+
         // Check that getPartialReward was called
         assertTrue(mockVault.getPartialRewardCalled());
         assertEq(mockVault.lastAccount(), address(manager));
@@ -157,10 +157,10 @@ contract RewardVaultManagerRealTimeTest is Test {
         MockRewardVault mockVault = new MockRewardVault(address(rewardVaultToken));
         vm.prank(owner);
         manager.registerRewardVault(address(mockVault));
-        
+
         // Set up mock vault to return less earned amount
         mockVault.setEarnedAmount(DISTRIBUTION_AMOUNT / 2);
-        
+
         // Try to distribute more than earned
         vm.prank(distributor);
         vm.expectEmit(true, true, true, true);
@@ -168,7 +168,7 @@ contract RewardVaultManagerRealTimeTest is Test {
             distributor, recipient, DISTRIBUTION_AMOUNT, DISTRIBUTION_AMOUNT / 2
         );
         manager.distributeRealTimeReward(recipient, DISTRIBUTION_AMOUNT);
-        
+
         // Check that getPartialReward was not called
         assertFalse(mockVault.getPartialRewardCalled());
     }
@@ -234,12 +234,12 @@ contract MockRewardVault is IRewardVault {
 // Mock LiquidBGTMinter for testing
 contract MockLiquidBGTMinter {
     address public fbgt;
-    
+
     constructor(address _fbgt) {
         fbgt = _fbgt;
     }
-    
-    function mint(address user, address rewardVault, address recipient) external returns (uint256) {
+
+    function mint(address /* user */, address /* rewardVault */, address /* recipient */) external pure returns (uint256) {
         // Mock implementation - just return 0 for testing
         return 0;
     }

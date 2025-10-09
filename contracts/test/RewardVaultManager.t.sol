@@ -66,7 +66,7 @@ contract RewardVaultManagerTest is Test {
         mockRewardVault = new MockRewardVault(address(token));
     }
 
-    function test_Initialize() public {
+    function test_Initialize() public view {
         assertEq(address(manager.rewardVault()), address(0));
         assertEq(address(manager.liquidBGTMinter()), address(0));
         assertEq(manager.liquidBGTToken(), address(0));
@@ -75,14 +75,14 @@ contract RewardVaultManagerTest is Test {
     function test_ClaimPartialBGTForTarget_Success() public {
         // Register the mock reward vault
         manager.registerRewardVault(address(mockRewardVault));
-        
+
         address testAccount = address(0x123);
         address testRecipient = address(0x456);
         uint256 testAmount = 1000 ether;
-        
+
         // Call the function
         manager.claimPartialBGTForTarget(testAccount, testRecipient, testAmount);
-        
+
         // Verify the mock was called correctly
         assertTrue(mockRewardVault.getPartialRewardCalled());
         assertEq(mockRewardVault.lastAccount(), testAccount);
@@ -93,7 +93,7 @@ contract RewardVaultManagerTest is Test {
     function test_ClaimPartialBGTForTarget_OnlyOwner() public {
         // Register the mock reward vault
         manager.registerRewardVault(address(mockRewardVault));
-        
+
         // Try to call from non-owner
         vm.prank(address(0x999));
         vm.expectRevert();
