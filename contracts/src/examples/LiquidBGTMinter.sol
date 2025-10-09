@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {ILiquidBGTMinter} from "../interfaces/ILiquidBGTMinter.sol";
-import {IRewardVault} from "../interfaces/IRewardVault.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Owned} from "@solmate/auth/Owned.sol";
+import {IRewardVault} from "../interfaces/IRewardVault.sol";
+import {ILiquidBGTMinter} from "../interfaces/ILiquidBGTMinter.sol";
 import {FBGT} from "./FBGT.sol";
-import {ERC20} from "@solmate/tokens/ERC20.sol";
 
 /// @title LiquidBGTMinter
 /// @notice A contract that mints liquid BGT tokens based on BGT rewards
@@ -17,7 +17,7 @@ contract LiquidBGTMinter is ILiquidBGTMinter, Owned {
     FBGT public immutable fbgt;
 
     /// @notice The BGT token contract on Bepolia
-    ERC20 public constant BGT = ERC20(0x656b95E550C07a9ffe548bd4085c72418Ceb1dba);
+    IERC20 public constant BGT = IERC20(0x656b95E550C07a9ffe548bd4085c72418Ceb1dba);
 
     // ============ Events ============
 
@@ -29,11 +29,14 @@ contract LiquidBGTMinter is ILiquidBGTMinter, Owned {
 
     // ============ Errors ============
 
-    /// @notice Error thrown when a zero address is provided
+    /// @notice Error thrown when a zero address is provided.
     error ZeroAddress();
 
     /// @notice Error thrown when no rewards were claimed
     error NoRewardsClaimed();
+
+    /// @notice Error thrown when not enough rewards are available perform the given claim.
+    error NotEnoughReward();
 
     // ============ Constructor ============
 
@@ -73,5 +76,25 @@ contract LiquidBGTMinter is ILiquidBGTMinter, Owned {
         emit FBGTMinted(user, recipient, bgtReceived);
 
         return bgtReceived;
+    }
+
+    /// @notice Mints FBGT tokens based on BGT rewards from a reward vault
+    /// @param user The address of the user claiming the reward
+    /// @param rewardVault The address of the reward vault
+    /// @param recipient The address that will receive the liquid BGT
+    /// @param amount The amount of BGT rewards to claim
+    function mintAmount(address user, address rewardVault, address recipient, uint256 amount) external override {
+        if (user == address(0)) revert ZeroAddress();
+        if (rewardVault == address(0)) revert ZeroAddress();
+        if (recipient == address(0)) revert ZeroAddress();
+        if (IRewardVault(rewardVault).earned(user) < amount) revert NotEnoughReward();
+
+        // Claim rewards from vault
+        IRewardVault(rewardVault).getPartialReward(user, address(this), amount);
+
+        // Mint equivalent amount of FBGT to recipient
+        fbgt.mint(recipient, amount);
+
+        emit FBGTMinted(user, recipient, amount);
     }
 }
