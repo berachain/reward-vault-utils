@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {Owned} from "@solmate/auth/Owned.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {MerkleProofLib} from "@solmate/utils/MerkleProofLib.sol";
 import {RewardVaultManager} from "../core/RewardVaultManager.sol";
-import {IRewardVault} from "../interfaces/IRewardVault.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 
 /// @title RewardVaultManagerMerkle
@@ -55,6 +53,7 @@ contract RewardVaultManagerMerkle is RewardVaultManager {
     error AlreadyClaimed();
     error AllocationExists();
     error InvalidRewardToken();
+    error TokenTransferFailed();
 
     /// @notice Creates a new token allocation with a merkle root
     /// @param merkleRoot The merkle root of the allocation
@@ -112,7 +111,8 @@ contract RewardVaultManagerMerkle is RewardVaultManager {
 
         // Transfer tokens to the user
         // @audit trusted external contract
-        ERC20(allocation.rewardToken).transfer(msg.sender, amount);
+        bool success = ERC20(allocation.rewardToken).transfer(msg.sender, amount);
+        if (!success) revert TokenTransferFailed();
 
         emit TokenClaimed(merkleRoot, msg.sender, amount);
     }

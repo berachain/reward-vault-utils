@@ -29,7 +29,7 @@ contract FBGTFaucetTest is Test {
         fbgtToken.mint(address(faucet), INITIAL_SUPPLY / 2);
     }
 
-    function test_Constructor() public {
+    function test_Constructor() public view {
         assertEq(faucet.owner(), owner);
         assertEq(faucet.getFBGTAddress(), address(fbgtToken));
         assertEq(faucet.getFaucetBalance(), INITIAL_SUPPLY / 2);
@@ -198,7 +198,7 @@ contract FBGTFaucetTest is Test {
         assertEq(faucet.getFaucetBalance(), (INITIAL_SUPPLY / 2) - DISTRIBUTION_AMOUNT);
     }
 
-    function test_GetFBGTAddress() public {
+    function test_GetFBGTAddress() public view {
         assertEq(faucet.getFBGTAddress(), address(fbgtToken));
     }
 

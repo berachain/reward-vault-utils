@@ -22,6 +22,7 @@
     "no-redundant-jump": "error",
     "reentrancy": "error",
     "state-visibility": "error",
-    "use-named-parameters": "error"
+    "use-named-parameters": "error",
+    "no-console": "off"
   }
-} 
+}

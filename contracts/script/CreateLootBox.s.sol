@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {Script, console} from "forge-std/Script.sol";
+import {console2} from "forge-std/console2.sol";
+import {Script} from "forge-std/Script.sol";
 import {RewardVaultLootBox} from "../src/examples/RewardVaultLootBox.sol";
 
 contract CreateLootBox is Script {
@@ -20,6 +21,7 @@ contract CreateLootBox is Script {
 
         // Create the loot box
         uint64 sequenceNumber = lootBoxVault.createLootBox{value: fee}(userRandomNumber);
+        console2.log("Created Loot Box with sequence number:", sequenceNumber);
 
         vm.stopBroadcast();
     }

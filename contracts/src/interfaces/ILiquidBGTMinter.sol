@@ -10,4 +10,11 @@ interface ILiquidBGTMinter {
     /// @param recipient The address that will receive the liquid BGT
     /// @return The amount of liquid BGT minted
     function mint(address user, address rewardVault, address recipient) external returns (uint256);
+
+    /// @notice Mints the given amount of liquid BGT if possible.
+    /// @param user The address of the user claiming the reward.
+    /// @param rewardVault The address of the reward vault.
+    /// @param recipient The address that will receive the liquid BGT.
+    /// @param amount The amount of liquid BGT to mint.
+    function mintAmount(address user, address rewardVault, address recipient, uint256 amount) external;
 }

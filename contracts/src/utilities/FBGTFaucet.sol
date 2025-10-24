@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {ERC20} from "@solmate/tokens/ERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title FBGTFaucet
 /// @notice Simple faucet contract for distributing FBGT tokens
 contract FBGTFaucet is Ownable {
-    ERC20 public immutable fbgtToken;
+    IERC20 public immutable fbgtToken;
 
     event TokensDistributed(address indexed recipient, uint256 amount);
     event TokensWithdrawn(address indexed owner, uint256 amount);
@@ -16,7 +16,7 @@ contract FBGTFaucet is Ownable {
     /// @param _fbgtToken The address of the FBGT token contract
     constructor(address _fbgtToken) Ownable(msg.sender) {
         require(_fbgtToken != address(0), "Invalid FBGT address");
-        fbgtToken = ERC20(_fbgtToken);
+        fbgtToken = IERC20(_fbgtToken);
     }
 
     /// @notice Distribute FBGT tokens to a specified address

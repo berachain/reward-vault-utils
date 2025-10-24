@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {MerkleManagerFactory} from "../src/utilities/MerkleManagerFactory.sol";
 import {RewardVaultManagerMerkle} from "../src/examples/RewardVaultManagerMerkle.sol";
-import {IRewardVaultFactory} from "../src/interfaces/IRewardVaultFactory.sol";
 
 contract MerkleManagerFactoryTest is Test {
     MerkleManagerFactory public factory;
@@ -15,12 +14,12 @@ contract MerkleManagerFactoryTest is Test {
         factory = new MerkleManagerFactory();
     }
 
-    function test_Constructor() public {
+    function test_Constructor() public view {
         assertEq(factory.rewardVaultFactory(), 0x94Ad6Ac84f6C6FbA8b8CCbD71d9f4f101def52a8);
         assertEq(factory.owner(), address(this));
     }
 
-    function test_ConstructorZeroAddress() public {
+    function test_ConstructorZeroAddress() public pure {
         // This test is no longer applicable since constructor takes no parameters
         // The reward vault factory is hardcoded in the contract
         assertTrue(true);
